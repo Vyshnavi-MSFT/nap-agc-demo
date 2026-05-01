@@ -23,6 +23,23 @@ echo "==> Provider registration"
 echo "    (NAP is GA — no preview feature flag needed.)"
 az provider register --namespace Microsoft.ContainerService    --wait
 az provider register --namespace Microsoft.ServiceNetworking   --wait
+az provider register --namespace Microsoft.NetworkFunction     --wait
+az provider register --namespace Microsoft.Network             --wait
+
+echo "==> Preview features for AGC ALB Controller add-on"
+az feature register --namespace Microsoft.ContainerService --name ManagedGatewayAPIPreview        >/dev/null
+az feature register --namespace Microsoft.ContainerService --name ApplicationLoadBalancerPreview  >/dev/null
+
+for f in ManagedGatewayAPIPreview ApplicationLoadBalancerPreview; do
+  for i in {1..60}; do
+    state=$(az feature show --namespace Microsoft.ContainerService --name "$f" --query properties.state -o tsv)
+    echo "    $f = $state  [$i]"
+    [[ "$state" == "Registered" ]] && break
+    sleep 10
+  done
+done
+
+az provider register --namespace Microsoft.ContainerService --wait
 
 echo "==> Resource group"
 az group create -n "$RG" -l "$LOCATION" -o table

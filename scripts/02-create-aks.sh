@@ -11,6 +11,10 @@ az aks create \
   --network-plugin azure --network-plugin-mode overlay \
   --network-dataplane cilium \
   --node-provisioning-mode Auto \
+  --enable-oidc-issuer \
+  --enable-workload-identity \
+  --enable-gateway-api \
+  --enable-application-load-balancer \
   --node-count 1 \
   --generate-ssh-keys \
   -o table
@@ -18,15 +22,18 @@ az aks create \
 echo "==> Fetching kubeconfig"
 az aks get-credentials -n "$CLUSTER" -g "$RG" --overwrite-existing
 
-echo "==> Enabling ALB Controller add-on (programs AGC)"
-az aks addon enable -n "$CLUSTER" -g "$RG" --addon application-load-balancer -o table
-
-echo "==> Waiting for ALB Controller pods to be Ready"
-kubectl wait --for=condition=Ready pods --all -n azure-alb-system --timeout=300s
+echo "==> Waiting for ALB Controller pods to be Ready (in kube-system)"
+for i in {1..30}; do
+  ready=$(kubectl get pods -n kube-system -l app=alb-controller --no-headers 2>/dev/null | grep -c Running || true)
+  echo "    [$i] alb-controller Running pods = $ready"
+  [[ "$ready" -ge 1 ]] && break
+  sleep 10
+done
 
 echo "==> Sanity checks"
 kubectl get nodes
-kubectl get pods -n azure-alb-system
+kubectl get pods -n kube-system | grep alb-controller
+kubectl get gatewayclass azure-alb-external
 az aks show -n "$CLUSTER" -g "$RG" --query "nodeProvisioningProfile.mode" -o tsv
 
 echo "==> Done"

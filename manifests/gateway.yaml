@@ -3,9 +3,6 @@ kind: Gateway
 metadata:
   name: gateway-01
   namespace: default
-  annotations:
-    alb.networking.azure.io/alb-namespace: azure-alb-system
-    alb.networking.azure.io/alb-name: nap-agc-alb
 spec:
   gatewayClassName: azure-alb-external
   listeners:

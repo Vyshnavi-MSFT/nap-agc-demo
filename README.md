@@ -177,7 +177,7 @@ Creates the AKS cluster with the three things this demo needs:
 
 Then enables the **ALB Controller** add-on (`az aks addon enable --addon application-load-balancer`) which is the in-cluster component that programs AGC.
 
-> **For beginners:** The ALB Controller is a Pod (actually a Deployment in the `azure-alb-system` namespace). When you create a `Gateway` resource in the cluster, the ALB Controller sees it and calls Azure ARM to create the matching AGC frontend in your subscription. You never click around the Azure Portal to provision AGC — you just write Kubernetes YAML.
+> **For beginners:** The ALB Controller is a Pod (actually a Deployment in the `kube-system` namespace). When you create a `Gateway` resource in the cluster, the ALB Controller sees it and calls Azure ARM to create the matching AGC frontend in your subscription. You never click around the Azure Portal to provision AGC — you just write Kubernetes YAML.
 
 ### Step 3 — Deploy baseline workload (`03-deploy-workloads.sh`)
 
@@ -276,7 +276,8 @@ After the scripts complete, the cluster should be in this state:
 | `kubectl get nodepool` returns `No resources found` | NAP CRDs not installed (NAP not enabled) | Verify `az aks show -n $CLUSTER -g $RG --query nodeProvisioningProfile.mode` returns `Auto` |
 | Pods stuck `Pending`, no Karpenter event fires | Pod requirements outside NodePool's `requirements` block (arch, sku-family, capacity-type) | Edit `manifests/nodepool.yaml` to widen the `requirements` block |
 | Karpenter event: `no instance type satisfied resources` | Pod request exceeds any VM in the allowed families | Add another `sku-family` (e.g. `F`) to the NodePool |
-| Gateway `ADDRESS` stays empty | ALB Controller add-on disabled or pods not Ready | `kubectl get pods -n azure-alb-system` — pods should be `Running`. Re-run `az aks addon enable -n $CLUSTER -g $RG --addon application-load-balancer` |
+| Gateway `ADDRESS` stays empty | ALB Controller add-on disabled or pods not Ready | `kubectl get pods -n kube-system \| grep alb-controller` — pods should be `Running`. If missing: `az aks update -n $CLUSTER -g $RG --enable-gateway-api --enable-application-load-balancer` |
+| `Addon applicationLoadBalancer is invalid` | `ApplicationLoadBalancerPreview` and/or `ManagedGatewayAPIPreview` features not registered, or cluster lacks workload identity | Re-run `bash scripts/01-prereqs.sh` to register both preview features, then `az aks update -n $CLUSTER -g $RG --enable-oidc-issuer --enable-workload-identity` before enabling the add-on |
 | `curl <AGC-IP>` returns `502` | Backend pods not Ready or wrong port in Service | `kubectl get endpoints shop` — endpoints list should not be empty; check Service `targetPort` matches container port |
 | Consolidation never fires | `consolidationPolicy` is not `WhenUnderutilized`, or `disruption.budgets` is blocking | `kubectl get nodepool default -o yaml` — confirm policy and lower `consolidateAfter` if needed |
 | Spot node terminated mid-demo | Azure spot eviction (expected behavior) | Pods automatically reschedule. If you do not want this during a recording, remove `spot` from `capacity-type` in the NodePool |

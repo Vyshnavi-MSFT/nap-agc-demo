@@ -38,7 +38,7 @@ Confirm the cluster is healthy:
 
 ```bash
 kubectl get nodes                                                          # 1 system node
-kubectl get pods -n azure-alb-system                                       # ALB Controller pods Running
+kubectl get pods -n kube-system | grep alb-controller                      # ALB Controller pods Running
 az aks show -n $CLUSTER -g $RG --query "nodeProvisioningProfile.mode" -o tsv  # → Auto
 ```
 
