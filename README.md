@@ -71,26 +71,21 @@ Each demo step maps back to one of these three problems.
 | Requirement | Notes |
 |---|---|
 | Azure subscription | Owner or Contributor on the subscription |
-| Azure CLI | Version 2.65 or later (`az version`) |
-| `aks-preview` CLI extension | `az extension add --name aks-preview --upgrade` |
-| `alb` CLI extension | `az extension add --name alb --upgrade` |
+| Azure CLI | Version **2.76.0 or later** (`az version`). Run `az upgrade --yes` if older. |
+| `aks-preview` CLI extension | `az extension add --name aks-preview --upgrade --allow-preview true` |
+| `alb` CLI extension | `az extension add --name alb --upgrade --allow-preview true` |
 | `kubectl` | `az aks install-cli` if missing |
 | Bash | Linux, macOS, WSL, or Git Bash on Windows |
 | Region with NAP and AGC capacity | `eastus2`, `westus3`, `westeurope` recommended |
 
-**Provider features (one-time per subscription):**
+**Provider registration (one-time per subscription):**
 
 ```bash
-az feature register --namespace Microsoft.ContainerService --name NodeAutoProvisioningPreview
-az provider register --namespace Microsoft.ContainerService
-az provider register --namespace Microsoft.ServiceNetworking
+az provider register --namespace Microsoft.ContainerService  --wait
+az provider register --namespace Microsoft.ServiceNetworking --wait
 ```
 
-Wait for the `NodeAutoProvisioningPreview` feature to show `Registered`:
-
-```bash
-az feature show --namespace Microsoft.ContainerService --name NodeAutoProvisioningPreview --query properties.state -o tsv
-```
+> NAP is now generally available in AKS — there is no preview feature flag to register.
 
 **NAP constraints to know up front:**
 
@@ -274,7 +269,9 @@ After the scripts complete, the cluster should be in this state:
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `az aks create` fails on `--node-provisioning-mode` | Preview feature not registered or `aks-preview` extension stale | Re-run `bash scripts/01-prereqs.sh`, then `az extension update --name aks-preview` |
+| `az aks create` fails on `--node-provisioning-mode` | Base `az` CLI older than 2.76.0 — `aks-preview` extension expects the newer network-profile shape | `az upgrade --yes` (or `winget upgrade --id Microsoft.AzureCLI` on Windows), then `az extension add --name aks-preview --upgrade --allow-preview true` |
+| `too many values to unpack (expected 3)` traceback during `az aks create` | Same root cause as above — `aks-preview` ↔ base CLI version mismatch | Same fix: `az upgrade --yes` + refresh `aks-preview` |
+| `FeatureNotFound: NodeAutoProvisioningPreview` | NAP went GA — that preview flag no longer exists | Skip the `az feature register` step; just register the providers and continue |
 | `az aks create` fails on `--network-dataplane cilium` | `aks-preview` extension stale | `az extension update --name aks-preview` |
 | `kubectl get nodepool` returns `No resources found` | NAP CRDs not installed (NAP not enabled) | Verify `az aks show -n $CLUSTER -g $RG --query nodeProvisioningProfile.mode` returns `Auto` |
 | Pods stuck `Pending`, no Karpenter event fires | Pod requirements outside NodePool's `requirements` block (arch, sku-family, capacity-type) | Edit `manifests/nodepool.yaml` to widen the `requirements` block |
