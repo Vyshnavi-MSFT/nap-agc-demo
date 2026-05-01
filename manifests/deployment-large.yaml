@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-large
+  namespace: default
+  labels:
+    app: nginx-large
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-large
+  template:
+    metadata:
+      labels:
+        app: nginx-large
+    spec:
+      containers:
+        - name: nginx
+          image: mcr.microsoft.com/oss/nginx/nginx:1.25.4
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "4000m"
+              memory: "10Gi"
+            limits:
+              cpu: "4000m"
+              memory: "10Gi"

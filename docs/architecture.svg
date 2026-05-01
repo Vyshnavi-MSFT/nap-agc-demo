@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 950" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937"/>
+    </marker>
+    <marker id="arrBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="950" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="750" y="48" font-size="24" fill="#0f172a" font-weight="700" text-anchor="middle">AKS Self-Managing Platform · AGC routes by load · NAP sizes nodes by pod</text>
+
+  <!-- ===== AZURE-MANAGED BAND (AGC outside cluster) ===== -->
+  <rect x="60" y="80" width="1380" height="140" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="80" y="110" font-size="13" fill="#1e40af" font-weight="700">AZURE-MANAGED  ·  outside the cluster</text>
+
+  <rect x="540" y="125" width="420" height="80" rx="10" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="2"/>
+  <text x="750" y="158" font-size="20" fill="white" font-weight="700" text-anchor="middle">Application Gateway for Containers</text>
+  <text x="750" y="183" font-size="13" fill="#bfdbfe" text-anchor="middle">load-aware L7 routing  ·  health probes  ·  TLS / WAF</text>
+
+  <!-- ===== AKS CLUSTER ===== -->
+  <rect x="60" y="260" width="1380" height="640" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="80" y="290" font-size="13" fill="#475569" font-weight="700">AKS CLUSTER</text>
+
+  <!-- Section A: Pods row + load-aware routing -->
+  <text x="80" y="320" font-size="12" fill="#64748b" font-weight="600">PODS  ·  AGC sends most traffic to the least-loaded pod</text>
+
+  <!-- Three pods with load levels -->
+  <!-- Pod 1: cool (low load) - get most traffic -->
+  <g>
+    <rect x="180" y="380" width="220" height="120" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="290" y="410" font-size="14" fill="#166534" font-weight="700" text-anchor="middle">pod-1</text>
+    <text x="290" y="432" font-size="11" fill="#166534" text-anchor="middle">load</text>
+    <rect x="210" y="442" width="160" height="12" rx="2" fill="#fff" stroke="#cbd5e1"/>
+    <rect x="210" y="442" width="35" height="12" rx="2" fill="#16a34a"/>
+    <text x="290" y="478" font-size="13" fill="#166534" font-weight="700" text-anchor="middle">22% · COOL</text>
+  </g>
+
+  <!-- Pod 2: warm (mid load) -->
+  <g>
+    <rect x="640" y="380" width="220" height="120" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+    <text x="750" y="410" font-size="14" fill="#92400e" font-weight="700" text-anchor="middle">pod-2</text>
+    <text x="750" y="432" font-size="11" fill="#92400e" text-anchor="middle">load</text>
+    <rect x="670" y="442" width="160" height="12" rx="2" fill="#fff" stroke="#cbd5e1"/>
+    <rect x="670" y="442" width="95" height="12" rx="2" fill="#f59e0b"/>
+    <text x="750" y="478" font-size="13" fill="#92400e" font-weight="700" text-anchor="middle">60% · WARM</text>
+  </g>
+
+  <!-- Pod 3: hot (high load) - get least traffic -->
+  <g>
+    <rect x="1100" y="380" width="220" height="120" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="1210" y="410" font-size="14" fill="#991b1b" font-weight="700" text-anchor="middle">pod-3</text>
+    <text x="1210" y="432" font-size="11" fill="#991b1b" text-anchor="middle">load</text>
+    <rect x="1130" y="442" width="160" height="12" rx="2" fill="#fff" stroke="#cbd5e1"/>
+    <rect x="1130" y="442" width="148" height="12" rx="2" fill="#dc2626"/>
+    <text x="1210" y="478" font-size="13" fill="#991b1b" font-weight="700" text-anchor="middle">92% · HOT</text>
+  </g>
+
+  <!-- Load-aware traffic arrows: thick to cool, medium to warm, thin to hot -->
+  <line x1="290" y1="220" x2="290" y2="380" stroke="#2563eb" stroke-width="9" marker-end="url(#arrBlue)"/>
+  <text x="305" y="305" font-size="12" fill="#2563eb" font-weight="700">most</text>
+
+  <line x1="750" y1="220" x2="750" y2="380" stroke="#2563eb" stroke-width="5" marker-end="url(#arrBlue)"/>
+  <text x="765" y="305" font-size="12" fill="#2563eb" font-weight="700">some</text>
+
+  <line x1="1210" y1="220" x2="1210" y2="380" stroke="#2563eb" stroke-width="2" marker-end="url(#arrBlue)"/>
+  <text x="1225" y="305" font-size="12" fill="#2563eb" font-weight="700">least</text>
+
+  <!-- Divider -->
+  <line x1="100" y1="540" x2="1400" y2="540" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <!-- Section B: NAP picks node SKU based on pod size + capacity -->
+  <text x="80" y="572" font-size="12" fill="#64748b" font-weight="600">NODES  ·  NAP picks the right SKU for each pod's size + remaining capacity</text>
+
+  <!-- Pending pods strip (left side of NAP layer) -->
+  <g>
+    <rect x="100" y="610" width="280" height="240" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+    <text x="240" y="638" font-size="14" fill="#92400e" font-weight="700" text-anchor="middle">Pending pods</text>
+    <text x="240" y="658" font-size="11" fill="#92400e" text-anchor="middle">(declared in Deployments)</text>
+
+    <rect x="120" y="678" width="240" height="46" rx="6" fill="#fff" stroke="#475569"/>
+    <text x="135" y="700" font-size="12" fill="#1e293b" font-weight="600">small pod</text>
+    <text x="345" y="700" font-size="11" fill="#64748b" text-anchor="end">2 CPU · 512Mi</text>
+    <text x="345" y="715" font-size="10" fill="#94a3b8" text-anchor="end">→ D-family fits</text>
+
+    <rect x="120" y="734" width="240" height="46" rx="6" fill="#fff" stroke="#475569"/>
+    <text x="135" y="756" font-size="12" fill="#1e293b" font-weight="600">memory pod</text>
+    <text x="345" y="756" font-size="11" fill="#64748b" text-anchor="end">4 CPU · 10Gi</text>
+    <text x="345" y="771" font-size="10" fill="#94a3b8" text-anchor="end">→ E-family fits</text>
+
+    <rect x="120" y="790" width="240" height="46" rx="6" fill="#fff" stroke="#475569"/>
+    <text x="135" y="812" font-size="12" fill="#1e293b" font-weight="600">batch pod</text>
+    <text x="345" y="812" font-size="11" fill="#64748b" text-anchor="end">spot OK</text>
+    <text x="345" y="827" font-size="10" fill="#94a3b8" text-anchor="end">→ D-spot fits</text>
+  </g>
+
+  <!-- NAP controller -->
+  <rect x="450" y="690" width="200" height="80" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="550" y="722" font-size="16" fill="#92400e" font-weight="700" text-anchor="middle">NAP (Karpenter)</text>
+  <text x="550" y="745" font-size="11" fill="#92400e" text-anchor="middle">size match → provision</text>
+
+  <!-- Provisioned right-sized nodes -->
+  <g>
+    <rect x="730" y="610" width="200" height="240" rx="10" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <text x="830" y="638" font-size="14" fill="#0c4a6e" font-weight="700" text-anchor="middle">Standard_D4s_v5</text>
+    <text x="830" y="658" font-size="11" fill="#64748b" text-anchor="middle">general purpose</text>
+    <text x="755" y="685" font-size="11" fill="#64748b" font-weight="600">capacity</text>
+    <rect x="755" y="694" width="150" height="10" rx="2" fill="#e5e7eb"/>
+    <rect x="755" y="694" width="60" height="10" rx="2" fill="#16a34a"/>
+    <rect x="760" y="720" width="60" height="50" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="790" y="750" font-size="11" fill="#166534" text-anchor="middle">small</text>
+    <text x="830" y="800" font-size="11" fill="#0c4a6e" text-anchor="middle">on-demand</text>
+  </g>
+
+  <g>
+    <rect x="960" y="610" width="200" height="240" rx="10" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <text x="1060" y="638" font-size="14" fill="#0c4a6e" font-weight="700" text-anchor="middle">Standard_E8s_v5</text>
+    <text x="1060" y="658" font-size="11" fill="#64748b" text-anchor="middle">memory optimized</text>
+    <text x="985" y="685" font-size="11" fill="#64748b" font-weight="600">capacity</text>
+    <rect x="985" y="694" width="150" height="10" rx="2" fill="#e5e7eb"/>
+    <rect x="985" y="694" width="105" height="10" rx="2" fill="#f59e0b"/>
+    <rect x="990" y="720" width="60" height="50" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+    <text x="1020" y="750" font-size="11" fill="#991b1b" text-anchor="middle">memory</text>
+    <text x="1060" y="800" font-size="11" fill="#0c4a6e" text-anchor="middle">on-demand</text>
+  </g>
+
+  <g>
+    <rect x="1190" y="610" width="200" height="240" rx="14" fill="#ffffff" stroke="#16a34a" stroke-width="3" stroke-dasharray="8 4"/>
+    <text x="1290" y="638" font-size="14" fill="#0c4a6e" font-weight="700" text-anchor="middle">Standard_D8s_v5</text>
+    <text x="1290" y="658" font-size="11" fill="#64748b" text-anchor="middle">spot capacity</text>
+    <text x="1215" y="685" font-size="11" fill="#64748b" font-weight="600">capacity</text>
+    <rect x="1215" y="694" width="150" height="10" rx="2" fill="#e5e7eb"/>
+    <rect x="1215" y="694" width="40" height="10" rx="2" fill="#16a34a"/>
+    <rect x="1220" y="720" width="60" height="50" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="1250" y="750" font-size="11" fill="#166534" text-anchor="middle">batch</text>
+    <text x="1290" y="800" font-size="11" fill="#16a34a" text-anchor="middle" font-weight="700">spot · cheap</text>
+
+    <rect x="1335" y="615" width="50" height="20" rx="10" fill="#16a34a"/>
+    <text x="1360" y="630" font-size="10" fill="white" font-weight="700" text-anchor="middle">NEW</text>
+  </g>
+
+  <!-- Arrows: pending pods -> NAP -->
+  <line x1="380" y1="730" x2="450" y2="730" stroke="#b45309" stroke-width="2" marker-end="url(#arrAmber)"/>
+
+  <!-- NAP -> nodes (straight horizontal then turn) -->
+  <line x1="650" y1="730" x2="730" y2="730" stroke="#1f2937" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="650" y1="730" x2="960" y2="730" stroke="#1f2937" stroke-width="2" stroke-opacity="0"/>
+
+  <!-- Vertical bus from NAP to other 2 nodes (above the nodes, drop down) -->
+  <path d="M 550 690 L 550 590 L 1060 590 L 1060 610" fill="none" stroke="#1f2937" stroke-width="2" marker-end="url(#arr)"/>
+  <path d="M 1060 590 L 1290 590 L 1290 610" fill="none" stroke="#1f2937" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- Legend -->
+  <g transform="translate(60, 920)">
+    <line x1="0" y1="0" x2="36" y2="0" stroke="#2563eb" stroke-width="9"/>
+    <text x="44" y="4" font-size="12" fill="#334155">most traffic (cool pod)</text>
+    <line x1="200" y1="0" x2="236" y2="0" stroke="#2563eb" stroke-width="2"/>
+    <text x="244" y="4" font-size="12" fill="#334155">least traffic (hot pod)</text>
+    <line x1="400" y1="0" x2="430" y2="0" stroke="#b45309" stroke-width="2"/>
+    <text x="438" y="4" font-size="12" fill="#334155">pending pod → NAP</text>
+    <line x1="590" y1="0" x2="620" y2="0" stroke="#1f2937" stroke-width="2"/>
+    <text x="628" y="4" font-size="12" fill="#334155">NAP provisions node</text>
+  </g>
+</svg>
