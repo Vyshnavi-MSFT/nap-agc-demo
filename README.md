@@ -1,4 +1,4 @@
-# AKS + Application Gateway for Containers (AGC) + Node Auto-Provisioning (NAP) Demo
+# Application Gateway for Containers (AGC) + Node Auto-Provisioning (NAP) Demo
 
 End-to-end demo showing how two AKS capabilities work together to turn a cluster into a self-managing platform that scales with demand and shrinks when demand drops:
 
