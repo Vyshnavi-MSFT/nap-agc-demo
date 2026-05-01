@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-large
+  name: recommender
   namespace: default
   labels:
-    app: nginx-large
+    app: recommender
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: nginx-large
+      app: recommender
   template:
     metadata:
       labels:
-        app: nginx-large
+        app: recommender
     spec:
       containers:
         - name: nginx

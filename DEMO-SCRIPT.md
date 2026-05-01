@@ -1,151 +1,152 @@
-# Demo Script — NAP + AGC on AKS (≤ 8 min)
+# Demo Script — AGC Load-Aware Routing + NAP Cost Savings
 
-**Tagline:** *"The Three Workload Problems — Solved Live."*
-
-Three acts, one for each customer pain. Each ends with a **PAUSE** moment for the camera to land on the proof.
-
-| Act | Pain | Proof moment | Time |
-| --- | --- | --- | --- |
-| 1 | "I don't know what node sizes to pick" | Karpenter logs `Launched Standard_D8ls_v5` — you never typed it | 0:00 – 2:30 |
-| 2 | "My workloads get stuck when nodes don't match" | Mem-heavy pods evicted/rescheduled on a brand-new `E16s_v5` | 2:30 – 5:00 |
-| 3 | "I'm wasting money on over-provisioned nodes" | Karpenter `Deleted NodeClaim` — VM terminated automatically | 5:00 – 7:15 |
-| Outro | The bigger story | Architecture recap + AGC silently routing throughout | 7:15 – 7:30 |
+A live, scripted demo built around a realistic customer scenario. Total runtime: **~10 minutes** of speaking, plus ~10 minutes of cluster provisioning that you complete **before** recording.
 
 ---
 
-## 0. Pre-Demo Setup (do BEFORE recording)
+## The Customer Scenario
+
+> **Contoso Retail** runs `shop.contoso.com` on AKS.
+> Tonight at 8pm, marketing is sending a flash-sale email to 2 million subscribers. The platform team expects traffic to spike 5x within minutes, then return to baseline a few hours later.
+>
+> Their three concerns:
+>
+> 1. **Sizing:** The recommendation engine they want to launch needs ~10 Gi of memory per pod. Today's node pool is CPU-optimized — they don't know what to put in a new node pool.
+> 2. **Speed:** When the spike hits, new pods must be running in under a minute, **and** existing pods must not be hammered while the new ones come up.
+> 3. **Cost:** After the sale, the extra capacity sits idle on the bill all night.
+>
+> We will solve all three live, on the cluster.
+
+This is the story you tell. Every command below maps to one of these three concerns.
+
+---
+
+## Pre-Demo Setup (do BEFORE recording)
+
+The cluster takes ~10 minutes to come up. Build it in advance so the recording is just the workload story.
 
 ```bash
-export RG="nap-agc-demo-rg"
-export CLUSTER="nap-agc-demo"
-export LOCATION="eastus2"
+source scripts/00-env.sh
+az login
+az account set --subscription "$SUBSCRIPTION_ID"
 
-az group create -n $RG -l $LOCATION
+bash scripts/01-prereqs.sh        # ~3 min
+bash scripts/02-create-aks.sh     # ~7 min
+```
 
-az aks create -n $CLUSTER -g $RG -l $LOCATION \
-  --network-plugin azure --network-plugin-mode overlay \
-  --network-dataplane cilium \
-  --node-provisioning-mode Auto \
-  --node-count 1 --generate-ssh-keys
+Confirm the cluster is healthy:
 
-az aks get-credentials -n $CLUSTER -g $RG
-
-# AGC ingress (ALB Controller add-on)
-az aks addon enable -n $CLUSTER -g $RG --addon alb-controller
-
-# Sanity checks
-kubectl get pods -n azure-alb-system
+```bash
+kubectl get nodes                                                          # 1 system node
+kubectl get pods -n azure-alb-system                                       # ALB Controller pods Running
 az aks show -n $CLUSTER -g $RG --query "nodeProvisioningProfile.mode" -o tsv  # → Auto
 ```
 
-Have files ready: `nodepool.yaml`, `gateway.yaml`, `nginx-service.yaml`, `deployment-small.yaml`, `deployment-large.yaml` (see `manifests/` folder).
+**Terminal layout (before pressing Record):**
 
-### Terminal layout
+| Pane | Command |
+|---|---|
+| Left (main) | this is where you type — large font |
+| Right-top | `kubectl get events -A --field-selector source=karpenter --sort-by='.lastTimestamp' -w` |
+| Right-bottom | `kubectl get pods -o wide -w` |
 
-| Pane | Command (start before recording) |
-| --- | --- |
-| **Left (main)** | your `kubectl apply` / `scale` commands |
-| **Right-top** | `kubectl get events -A --field-selector source=karpenter -w` |
-| **Right-bottom** | `kubectl get pods -o wide -w` |
-
-The right panes are your *proof*. Every left-pane action lights them up live.
+The right-top pane is your **proof pane**. When the audience sees `Launched instance: Standard_D...` appear there, the demo lands.
 
 ---
 
-## ACT 1 — "I don't know what node sizes to pick"  (0:00 – 2:30)
+## Act 1 — "We don't know what VM SKU to pick" (0:00 – 3:00)
 
-### Step 1 · Set the stage  (0:00 – 0:30)
+### Open (0:00 – 0:30)
 
-> "Most teams start here — workloads to run, no idea what VM size to pick. Pick small → workloads fail. Pick big → you overpay. With NAP, you stop guessing."
-
-```bash
-kubectl get nodes        # → 1 system node only
-kubectl get nodepool     # → No resources found (yet)
-```
-
-Point at the right-top pane: *"Karpenter event log. Quiet — nothing pending."*
-
-### Step 2 · Apply NodePool  (0:30 – 1:00)
-
-> "I'm not picking a VM size. I'm telling Karpenter a *family* — D-series — and letting it choose."
+> *"This is Contoso Retail's AKS cluster. One system node, no workload nodes, no node-pool plan. Today they ship the new shop service and tonight they run a flash sale. Watch what happens when I just deploy the workload."*
 
 ```bash
-cat nodepool.yaml      # highlight: sku-family=D, consolidationPolicy=WhenUnderutilized
-kubectl apply -f nodepool.yaml
-kubectl get nodepool   # → READY=True, NODES=0
+kubectl get nodes
+kubectl get nodepool
 ```
 
-> "Zero nodes. NAP only acts when there's demand."
+The output should be: 1 system node, no `NodePool` resources yet.
 
-### Step 3 · Wire AGC  (1:00 – 1:15)
+### Step 1 — Apply the NodePool (0:30 – 1:15)
 
-> "Same idea on the ingress side — Application Gateway for Containers. One Gateway, one HTTPRoute."
+> *"This is the only NAP configuration I will write. I am not picking a VM SKU. I am giving Karpenter a list of **families** it is allowed to choose from."*
 
 ```bash
-kubectl apply -f nginx-service.yaml
-kubectl apply -f gateway.yaml
-kubectl get gateway    # ADDRESS pending → will resolve
+cat manifests/nodepool.yaml
+kubectl apply -f manifests/nodepool.yaml
+kubectl get nodepool
 ```
 
-### Step 4 · Deploy small workload  (1:15 – 1:45)
+Highlight three things in the YAML on screen:
 
-> "Pod needs 2 CPU and 361Mi memory. I have no idea what Azure SKU fits. Doesn't matter."
+- `karpenter.azure.com/sku-family In [D, E]` — only general-purpose or memory-optimized.
+- `karpenter.sh/capacity-type In [on-demand, spot]` — Karpenter can pick spot when safe.
+- `consolidationPolicy: WhenUnderutilized` — empty nodes get reclaimed.
+
+> *"Zero nodes. NAP only acts when there is real demand."*
+
+### Step 2 — Wire the AGC frontend (1:15 – 1:45)
+
+> *"Same idea on ingress. I am not provisioning AGC in the portal. I am writing a Gateway and HTTPRoute and the ALB Controller programs the AGC frontend for me."*
 
 ```bash
-kubectl apply -f deployment-small.yaml
+kubectl apply -f manifests/nginx-service.yaml
+kubectl apply -f manifests/gateway.yaml
+kubectl get gateway gateway-01
 ```
 
-**Right-bottom:** pods go `Pending`.
-**Right-top:** Karpenter fires:
+> *"Gateway is created. Address is pending — that resolves once pods exist."*
+
+### Step 3 — Deploy the baseline shop workload (1:45 – 2:15)
+
+> *"`shop-v1`. Two pods, 2 CPU each. Standard ecommerce baseline."*
+
+```bash
+kubectl apply -f manifests/deployment-small.yaml
+```
+
+**Right-bottom pane:** pods go `Pending`.
+**Right-top pane:** Karpenter fires:
 
 ```
-NominatePod        pod/nginx-xxx  → NodeClaim/default-xxxxx
+NominatePod        pod/shop-v1-xxx  → NodeClaim/default-xxxxx
 NodeClaimCreated   nodeclaim/...
 Launched           nodeclaim/...  Launched instance: Standard_D8ls_v5
 ```
 
-### ⏸ PAUSE #1 — The Reveal  (1:45 – 2:00)
+### PAUSE #1 — The Reveal (2:15 – 2:45)
 
-Stop. Point at `Launched Standard_D8ls_v5`.
+Stop typing. Point at `Launched Standard_D8ls_v5`.
 
-> **"I never typed `D8ls_v5`. Karpenter read my pod spec — 2 CPU, 361Mi — and picked the most cost-efficient D-series VM that fits. Problem 1: solved."**
+> **"I never typed `D8ls_v5`. Karpenter read my pod spec — 2 CPU, 361 Mi — and picked the cheapest D-series VM that fits both pods. Concern #1: solved."**
 
-### Step 5 · Confirm  (2:00 – 2:30)
+### Step 4 — Confirm (2:45 – 3:00)
 
 ```bash
 kubectl get nodes
-kubectl get nodes --show-labels | grep karpenter.azure.com/sku-name
-kubectl get pods                # both Running
-kubectl get gateway             # AGC ADDRESS now populated
-curl http://<AGC-IP>/           # nginx welcome page
+kubectl get pods -o wide
+kubectl get gateway gateway-01    # ADDRESS now populated
+curl http://<AGC-IP>/             # nginx welcome page
 ```
-
-> "Two pods running. AGC routing live. The VM? NAP picked it."
 
 ---
 
-## ACT 2 — "My workloads get stuck when nodes don't match"  (2:30 – 5:00)
+## Act 2 — "The marketing email just dropped" (3:00 – 6:30)
 
-### Step 6 · Introduce new demand  (2:30 – 2:50)
+### Set the scene (3:00 – 3:20)
 
-> "Workload requirements change — say a memory-heavy feature ships. New pods need 10Gi each, 3 replicas. Current node can't take it."
+> *"It is 8pm. Marketing just sent the email blast. Two things happen at once: the recommendation engine launches — that's the new memory-heavy service — and `shop-v1` traffic spikes 5x. Watch."*
 
-```bash
-kubectl describe node <node-name> | grep -A5 "Allocatable:"   # ~15Gi available
-```
+### Step 5 — Apply the recommendation engine (3:20 – 3:50)
 
-> "We need 30Gi. Watch what happens."
-
-### Step 7 · Apply the heavy deployment  (2:50 – 3:10)
+> *"`recommender`. Three pods. Each one wants 4 CPU and 10 Gi memory. Our D8ls node has ~15 Gi total. It does not fit."*
 
 ```bash
-kubectl apply -f deployment-large.yaml
+kubectl apply -f manifests/deployment-large.yaml
 ```
 
-**Right-bottom:** new pods `Pending`.
-**Right-top:** Karpenter nominates pods to a new NodeClaim.
-
-### Step 8 · Watch the rescheduling live  (3:10 – 4:00)
+**Right-bottom pane:** new `recommender` pods go `Pending`.
+**Right-top pane:** Karpenter nominates them to a **new** NodeClaim.
 
 Watch for:
 
@@ -155,53 +156,67 @@ Initialized  node/aks-default-yyy
 NodeClaimReady ...
 ```
 
-⚡ When `E16s_v5` appears:
+When `E16s_v5` appears:
 
-> **"`E16s_v5` — memory-optimized. Completely different family from before. Karpenter saw the 10Gi request and picked the right machine type automatically."**
+> **"`E16s_v5` — memory-optimized. Completely different family from before. Karpenter saw the 10 Gi request and picked the right machine type automatically. The platform team did not write a second node pool."**
 
-Right-bottom: pods transition `Pending → ContainerCreating → Running`.
-
-### Step 9 · Inspect mix-and-match placement  (4:00 – 4:20)
+### Step 6 — Scale the shop spike (3:50 – 4:30)
 
 ```bash
-kubectl get pods -o wide                            # mix of nodes!
-kubectl get pod <pod> -o yaml | grep -A3 resources  # 10Gi confirmed
-kubectl get nodes --show-labels | grep sku-name     # D8ls_v5 + E16s_v5 side by side
+kubectl scale deployment shop-v1 --replicas=6
 ```
 
-### ⏸ PAUSE #2 — The Reveal  (4:20 – 4:40)
-
-> **"Two workloads. Two machine types. Right machine for each — automatically. Pods never got stuck. Problem 2: solved."**
-
-### Step 10 · AGC stayed silent  (4:40 – 5:00)
+**Right-bottom pane:** four new `shop-v1` pods go `Pending → Running`.
+**Right-top pane:** Karpenter places the new pods on the existing D-node where they fit, and on the E-node where they fit alongside the recommender.
 
 ```bash
-curl http://<AGC-IP>/      # still works — no routing change
+kubectl get pods -o wide                # six lights + three heavies, mix of nodes
 ```
 
-> "AGC's probes detected the new pods and added them to rotation. The networking layer adapted just like the compute layer did."
+### PAUSE #2 — Two reveals at once (4:30 – 5:00)
+
+> **"Two workloads. Two machine families. Right machine for each, automatically. That's NAP. But there is a second thing happening that you cannot see in `kubectl`."**
+
+### Step 7 — Prove load-aware routing (5:00 – 6:00)
+
+> *"AGC is not a round-robin load balancer. When new pods come up, the existing pods are already busy serving the spike. AGC tracks pod load and routes new connections to the **cool** pods first. Let me prove it."*
+
+In a separate terminal (or pane):
+
+```bash
+bash scripts/06-load-test.sh
+```
+
+The script runs a load-generator pod inside the cluster that hits the AGC endpoint for 60 seconds, then prints the response distribution by `POD_IP`. The output should show the cool pods (the ones on the newly-provisioned node) receiving more requests than the already-busy pods.
+
+> **"See the distribution? The pods on the new node are catching the spike. The original two pods, which were already serving traffic, get fewer new connections. Without load-aware routing, all six pods would split the spike evenly and the busy ones would saturate first. Concern #2: solved."**
+
+### Step 8 — Sanity check the user experience (6:00 – 6:30)
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://<AGC-IP>/
+# repeat a few times
+```
+
+> *"Two hundreds throughout. The customer never saw a 5xx. AGC's probes added the new pods to rotation as soon as they passed health checks."*
 
 ---
 
-## ACT 3 — "I'm wasting money on over-provisioned nodes"  (5:00 – 7:15)
+## Act 3 — "After the sale, where does the cost go?" (6:30 – 9:00)
 
-### Step 11 · Show the waste  (5:00 – 5:20)
+### Set the scene (6:30 – 6:50)
 
-```bash
-kubectl get nodes                       # 2 workload nodes (D + E)
-kubectl describe node <e-node> | grep -A8 "Allocated resources:"  # under-utilized
-```
+> *"It is 11pm. The sale is over. Recommendation traffic is gone. In a traditional setup, that E16s node sits on the bill all night. Watch what NAP does."*
 
-> "In a traditional setup these nodes sit idle, on the bill. Watch consolidation."
-
-### Step 12 · Scale down → consolidation  (5:20 – 6:00)
+### Step 9 — Scale down the heavy workload (6:50 – 7:20)
 
 ```bash
-kubectl apply -f deployment-small.yaml      # back to light workload
+kubectl scale deployment recommender --replicas=0
+kubectl scale deployment shop-v1 --replicas=2     # back to baseline
 ```
 
-**Right-bottom:** heavy pods `Terminating`, small pods `Pending → Running`.
-**Right-top:**
+**Right-bottom pane:** recommender pods `Terminating`, extra shop pods `Terminating`.
+**Right-top pane:**
 
 ```
 Disrupting          nodeclaim/...   via consolidation: replace
@@ -210,54 +225,85 @@ Terminating         nodeclaim/...
 Deleted             node/...
 ```
 
-### ⏸ PAUSE #3 — The Reveal  (6:00 – 6:20)
+This may take 1–2 minutes depending on `consolidateAfter`.
 
-> **"That E16s_v5 just got terminated — automatically. ~$0.50/hr machine that in a traditional setup would have run all night. Problem 3: solved."**
+### PAUSE #3 — The Reveal (7:20 – 7:45)
 
-### Step 13 · Final state  (6:20 – 6:45)
+Point at `Deleted node`.
 
-```bash
-kubectl get nodes                                       # back to 1 workload node
-kubectl get nodes --show-labels | grep sku-name         # right-sized D
-kubectl get pods -o wide                                # bin-packed efficiently
-```
+> **"That E16s_v5 just got terminated automatically. Roughly fifty cents per hour. In a traditional setup that machine would have run all night — call it $4 saved on a single node, on a single workload. Multiply by every workload, every team, every cluster. Concern #3: solved."**
 
-### Step 14 · Cost narrative  (6:45 – 7:15)
-
-> "Traditional: 3 node pools, paid 24×7. With NAP: one NodePool definition, capacity appears with demand and disappears without it. AGC handles ingress autoscale on its own — no fixed L7 tier either. **Two layers of efficiency. One platform.**"
-
----
-
-## OUTRO  (7:15 – 7:30)
+### Step 10 — Confirm the steady state (7:45 – 8:15)
 
 ```bash
-kubectl get nodes && kubectl get pods && kubectl get gateway && curl http://<AGC-IP>/
+kubectl get nodes                       # back to one workload node (D-family)
+kubectl get pods -o wide                # bin-packed efficiently on the D-node
+curl http://<AGC-IP>/                   # AGC still works, no manual reconfig
 ```
 
-> "NAP for compute. AGC for traffic. Together — no node pool planning, no stuck workloads, no idle capacity. Your cluster becomes a **self-managing platform**."
+### Closing (8:15 – 9:00)
 
-Flash the links:
+> *"Let me recap what we did NOT do tonight:*
+>
+> *— We did not pre-create node pools for two workload shapes.*
+> *— We did not provision an AGC frontend in the Azure Portal.*
+> *— We did not write any autoscale logic.*
+> *— We did not manually drain or terminate any node.*
+>
+> *What we did do:*
+>
+> *— We wrote one NodePool YAML and let Karpenter pick the VM SKUs.*
+> *— We wrote one Gateway YAML and let the ALB Controller program AGC.*
+> *— We deployed pods and watched the cluster respond to demand.*
+>
+> *NAP for compute. AGC for traffic. Together, your AKS cluster becomes a self-managing platform."*
+
+Flash the references on screen:
 
 - [aka.ms/aks/nap](https://learn.microsoft.com/azure/aks/node-autoprovision)
 - [aka.ms/agc](https://learn.microsoft.com/azure/application-gateway/for-containers/overview)
 
 ---
 
-## Karpenter Log Cheat-Sheet (highlight these on screen)
+## Karpenter Event Cheat-Sheet (highlight these on the proof pane)
 
-| Log line | Meaning | When |
-| --- | --- | --- |
+| Event | Meaning | When |
+|---|---|---|
 | `NominatePod` | Karpenter claimed a pending pod | immediately |
-| `NodeClaimCreated` | Decision made, spinning up VM | ~5s later |
-| `Launched instance: Standard_<SKU>` | **The reveal** — VM type chosen | ~30s |
-| `Initialized` | Node ready for pods | ~60–90s |
-| `Disrupting via consolidation: replace` | Underutilized node being removed | after scale-down |
-| `Deleted NodeClaim` | VM terminated, $$$ saved | consolidation done |
+| `NodeClaimCreated` | Decision made, spinning up VM | within ~5 s |
+| `Launched instance: Standard_<SKU>` | **The reveal** — VM type chosen | within ~30 s |
+| `Initialized` | Node is `Ready`, pods can bind | within ~60–90 s |
+| `Disrupting via consolidation: replace` | Under-utilized node being removed | after scale-down |
+| `Deleted NodeClaim` | VM terminated, billing stops | consolidation done |
+
+---
 
 ## Reset Between Takes
 
 ```bash
-kubectl scale deployment nginx-deployment --replicas=0
-kubectl delete -f deployment-large.yaml --ignore-not-found
+kubectl scale deployment recommender --replicas=0 --ignore-not-found
+kubectl scale deployment shop-v1 --replicas=2
+# wait ~3 min for consolidation
+kubectl get nodes                       # back to a single D-node
 kubectl get events -A --field-selector source=karpenter --sort-by='.lastTimestamp' | tail
 ```
+
+To restart from a fully empty cluster without re-creating it:
+
+```bash
+kubectl delete -f manifests/deployment-large.yaml --ignore-not-found
+kubectl delete -f manifests/deployment-small.yaml --ignore-not-found
+# wait for consolidation, then redeploy from Step 3 above
+```
+
+---
+
+## What to Cut if You Only Have 5 Minutes
+
+If you are constrained to a 5-minute slot, drop Act 3 and end after Step 7 (load-aware routing reveal). The full story still lands:
+
+- Act 1 proves NAP picks the right SKU.
+- Act 2 proves NAP + AGC work together for the spike.
+- The cost story can be a closing sentence rather than a live reveal.
+
+If you only have **3 minutes**, run just Act 1: apply NodePool → apply baseline workload → point at `Launched instance`. That is enough to make the "self-managing platform" point.

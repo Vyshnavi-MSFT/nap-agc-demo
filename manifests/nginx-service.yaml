@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-service
+  name: shop
   namespace: default
 spec:
   selector:
-    app: nginx
+    app: shop-v1
   ports:
     - name: http
       port: 80
