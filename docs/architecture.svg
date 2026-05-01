@@ -1,76 +1,115 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" font-family="Segoe UI, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" font-family="Segoe UI, Arial, sans-serif">
   <defs>
-    <marker id="arrBlueThin" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <marker id="arrBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
     </marker>
-    <marker id="arrBlueThick" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    <marker id="arrAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b45309"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/>
     </marker>
   </defs>
 
-  <rect width="1200" height="800" fill="#fafafa"/>
+  <rect width="1400" height="950" fill="#fafafa"/>
 
   <!-- Title -->
-  <text x="600" y="50" font-size="26" fill="#0f172a" font-weight="700" text-anchor="middle">AGC + NAP on AKS</text>
-  <text x="600" y="80" font-size="14" fill="#64748b" text-anchor="middle">AGC routes to the least-loaded pods · NAP adds nodes only when demand needs them</text>
+  <text x="700" y="55" font-size="30" fill="#0f172a" font-weight="700" text-anchor="middle">AGC + NAP on AKS</text>
+  <text x="700" y="88" font-size="17" fill="#64748b" text-anchor="middle">AGC routes by load · NAP adds a right-sized node when a pod needs more capacity</text>
 
-  <!-- Outer panel (green) -->
-  <rect x="60" y="110" width="1080" height="650" rx="14" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
-  <text x="600" y="148" font-size="20" fill="#166534" font-weight="700" text-anchor="middle">Self-Managing AKS Platform</text>
+  <!-- Outer green panel -->
+  <rect x="50" y="115" width="1300" height="800" rx="14" fill="#f0fdf4" stroke="#86efac" stroke-width="2"/>
 
-  <!-- AGC box (top center) -->
-  <rect x="380" y="180" width="440" height="80" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-  <text x="600" y="212" font-size="17" fill="#166534" font-weight="700" text-anchor="middle">AGC · Load-Aware Routing</text>
-  <text x="600" y="236" font-size="13" fill="#166534" text-anchor="middle">picks healthiest, least-loaded pod</text>
+  <!-- ====== AGC at top, centered ====== -->
+  <rect x="430" y="155" width="540" height="92" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="700" y="194" font-size="22" fill="#166534" font-weight="700" text-anchor="middle">AGC · Load-Aware Routing</text>
+  <text x="700" y="222" font-size="16" fill="#166534" text-anchor="middle">picks the healthiest, least-loaded pod</text>
 
-  <!-- Two arrows: light to existing, heavy to new -->
-  <line x1="450" y1="260" x2="450" y2="370" stroke="#2563eb" stroke-width="2.5" marker-end="url(#arrBlueThin)"/>
-  <text x="430" y="320" font-size="13" fill="#64748b" font-weight="600" text-anchor="end">light</text>
+  <!-- Two routing arrows: light to busy node, heavy to new node -->
+  <line x1="350" y1="250" x2="350" y2="380" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="320" y="320" font-size="16" fill="#64748b" font-weight="700" text-anchor="end">light</text>
 
-  <line x1="780" y1="260" x2="780" y2="370" stroke="#2563eb" stroke-width="9" marker-end="url(#arrBlueThick)"/>
-  <text x="800" y="320" font-size="13" fill="#2563eb" font-weight="700">heavy</text>
+  <line x1="1050" y1="250" x2="1050" y2="380" stroke="#2563eb" stroke-width="11" marker-end="url(#arrBlue)"/>
+  <text x="1080" y="320" font-size="16" fill="#2563eb" font-weight="700">heavy</text>
 
-  <!-- Existing Node (busy) -->
-  <rect x="160" y="390" width="380" height="240" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
-  <text x="350" y="422" font-size="16" fill="#334155" font-weight="700" text-anchor="middle">Existing Node</text>
+  <!-- ====== EXISTING NODE (left) — busy ====== -->
+  <!-- Box: x=110, w=480, center x=350 -->
+  <rect x="110" y="380" width="480" height="320" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="350" y="418" font-size="20" fill="#334155" font-weight="700" text-anchor="middle">Existing Node</text>
 
-  <!-- capacity bar -->
-  <rect x="200" y="445" width="300" height="16" rx="4" fill="#fff" stroke="#cbd5e1"/>
-  <rect x="200" y="445" width="264" height="16" rx="4" fill="#f59e0b"/>
-  <text x="500" y="458" font-size="12" fill="#b45309" font-weight="700" text-anchor="end">88%</text>
+  <!-- capacity bar centered: width 360, x=170 -->
+  <text x="170" y="450" font-size="14" fill="#64748b" font-weight="600">capacity</text>
+  <rect x="170" y="460" width="360" height="20" rx="4" fill="#fff" stroke="#cbd5e1"/>
+  <rect x="170" y="460" width="338" height="20" rx="4" fill="#dc2626"/>
+  <text x="530" y="476" font-size="14" fill="#dc2626" font-weight="700" text-anchor="end">94%</text>
 
-  <!-- pods -->
-  <rect x="220" y="490" width="100" height="70" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
-  <text x="270" y="530" font-size="13" fill="#1e293b" font-weight="600" text-anchor="middle">pod</text>
-  <rect x="380" y="490" width="100" height="70" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
-  <text x="430" y="530" font-size="13" fill="#1e293b" font-weight="600" text-anchor="middle">pod</text>
+  <!-- pods centered: 2 pods × 130 + gap 30 = 290, start = 350-145 = 205 -->
+  <rect x="205" y="510" width="130" height="100" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
+  <text x="270" y="548" font-size="16" fill="#1e293b" font-weight="700" text-anchor="middle">pod</text>
+  <text x="270" y="572" font-size="12" fill="#64748b" text-anchor="middle">cpu</text>
+  <rect x="220" y="582" width="100" height="12" rx="2" fill="#fff" stroke="#cbd5e1"/>
+  <rect x="220" y="582" width="92" height="12" rx="2" fill="#dc2626"/>
 
-  <text x="350" y="600" font-size="13" fill="#b45309" text-anchor="middle" font-weight="600">getting less new traffic</text>
+  <rect x="365" y="510" width="130" height="100" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
+  <text x="430" y="548" font-size="16" fill="#1e293b" font-weight="700" text-anchor="middle">pod</text>
+  <text x="430" y="572" font-size="12" fill="#64748b" text-anchor="middle">cpu</text>
+  <rect x="380" y="582" width="100" height="12" rx="2" fill="#fff" stroke="#cbd5e1"/>
+  <rect x="380" y="582" width="88" height="12" rx="2" fill="#dc2626"/>
 
-  <!-- NAP-provisioned Node (fresh capacity) -->
-  <rect x="640" y="390" width="400" height="240" rx="14" fill="#ffffff" stroke="#16a34a" stroke-width="3" stroke-dasharray="8 4"/>
-  <text x="840" y="422" font-size="16" fill="#166534" font-weight="700" text-anchor="middle">NAP-provisioned Node</text>
+  <text x="350" y="650" font-size="16" fill="#dc2626" font-weight="700" text-anchor="middle">node is full · new pod can't fit</text>
+
+  <!-- ====== MIDDLE — Pending pod with CPU growth → NAP ====== -->
+  <!-- Pending pod showing CPU growth -->
+  <rect x="630" y="395" width="160" height="160" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2.5" stroke-dasharray="6 3"/>
+  <text x="710" y="428" font-size="16" fill="#92400e" font-weight="700" text-anchor="middle">pending pod</text>
+
+  <!-- CPU growth arrow inside the pending pod -->
+  <text x="710" y="455" font-size="13" fill="#92400e" text-anchor="middle">cpu request ↑</text>
+  <rect x="650" y="468" width="120" height="16" rx="3" fill="#fff" stroke="#cbd5e1"/>
+  <rect x="650" y="468" width="120" height="16" rx="3" fill="#dc2626"/>
+  <text x="710" y="510" font-size="14" fill="#92400e" font-weight="700" text-anchor="middle">needs more</text>
+  <text x="710" y="528" font-size="14" fill="#92400e" font-weight="700" text-anchor="middle">capacity</text>
+
+  <!-- Arrow: pending pod → NAP -->
+  <line x1="710" y1="570" x2="710" y2="610" stroke="#b45309" stroke-width="3" marker-end="url(#arrAmber)"/>
+
+  <!-- NAP box -->
+  <rect x="600" y="610" width="220" height="80" rx="10" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="710" y="645" font-size="20" fill="#92400e" font-weight="700" text-anchor="middle">NAP</text>
+  <text x="710" y="672" font-size="14" fill="#92400e" text-anchor="middle">picks right-sized node</text>
+
+  <!-- Arrow: NAP → new node (curving up to right node) -->
+  <path d="M 820 650 L 880 650 L 880 540 L 935 540" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#arrGreen)"/>
+
+  <!-- ====== NAP-PROVISIONED NODE (right) ====== -->
+  <!-- Box: x=810, w=480, center x=1050 -->
+  <rect x="810" y="380" width="480" height="320" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="3" stroke-dasharray="8 4"/>
+  <text x="1050" y="418" font-size="20" fill="#166534" font-weight="700" text-anchor="middle">NAP-provisioned Node</text>
 
   <!-- NEW badge -->
-  <rect x="975" y="402" width="55" height="22" rx="11" fill="#16a34a"/>
-  <text x="1002" y="418" font-size="11" fill="white" font-weight="700" text-anchor="middle">NEW</text>
+  <rect x="1190" y="395" width="64" height="26" rx="13" fill="#16a34a"/>
+  <text x="1222" y="414" font-size="13" fill="white" font-weight="700" text-anchor="middle">NEW</text>
 
-  <!-- capacity bar -->
-  <rect x="680" y="445" width="320" height="16" rx="4" fill="#fff" stroke="#cbd5e1"/>
-  <rect x="680" y="445" width="70" height="16" rx="4" fill="#16a34a"/>
-  <text x="1000" y="458" font-size="12" fill="#16a34a" font-weight="700" text-anchor="end">22%</text>
+  <text x="870" y="450" font-size="14" fill="#64748b" font-weight="600">capacity</text>
+  <rect x="870" y="460" width="360" height="20" rx="4" fill="#fff" stroke="#cbd5e1"/>
+  <rect x="870" y="460" width="86" height="20" rx="4" fill="#16a34a"/>
+  <text x="1230" y="476" font-size="14" fill="#16a34a" font-weight="700" text-anchor="end">24%</text>
 
-  <!-- pods -->
-  <rect x="700" y="490" width="100" height="70" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
-  <text x="750" y="530" font-size="13" fill="#1e293b" font-weight="600" text-anchor="middle">pod</text>
-  <rect x="820" y="490" width="100" height="70" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
-  <text x="870" y="530" font-size="13" fill="#1e293b" font-weight="600" text-anchor="middle">pod</text>
-  <rect x="940" y="490" width="100" height="70" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
-  <text x="990" y="530" font-size="13" fill="#1e293b" font-weight="600" text-anchor="middle">pod</text>
+  <!-- pods centered: 2 pods × 130 + gap 30 = 290, start = 1050-145 = 905 -->
+  <!-- Show the "fitted" pod — bigger, plus another smaller pod with room -->
+  <rect x="905" y="510" width="130" height="100" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="970" y="548" font-size="16" fill="#166534" font-weight="700" text-anchor="middle">pod</text>
+  <text x="970" y="572" font-size="12" fill="#166534" text-anchor="middle">fits cleanly</text>
+  <rect x="920" y="582" width="100" height="12" rx="2" fill="#fff" stroke="#cbd5e1"/>
+  <rect x="920" y="582" width="30" height="12" rx="2" fill="#16a34a"/>
 
-  <text x="840" y="600" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="600">right-sized for the workload</text>
+  <rect x="1065" y="510" width="130" height="100" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="1130" y="548" font-size="16" fill="#94a3b8" font-weight="600" text-anchor="middle">room</text>
+  <text x="1130" y="572" font-size="12" fill="#94a3b8" text-anchor="middle">for more</text>
 
-  <!-- NAP loop caption -->
-  <text x="600" y="680" font-size="14" fill="#166534" font-weight="700" text-anchor="middle">↻ NAP loop</text>
-  <text x="600" y="705" font-size="13" fill="#334155" text-anchor="middle">scale up on pending pods · consolidate when idle · capacity tracks demand</text>
+  <text x="1050" y="650" font-size="16" fill="#16a34a" font-weight="700" text-anchor="middle">right-sized for the pod's needs</text>
+
+  <!-- Bottom caption -->
+  <text x="700" y="770" font-size="18" fill="#166534" font-weight="700" text-anchor="middle">↻ NAP loop</text>
+  <text x="700" y="800" font-size="16" fill="#334155" text-anchor="middle">scale up when pods need more · consolidate when idle · capacity tracks demand</text>
 </svg>
