@@ -19,7 +19,7 @@ echo "==> Fetching kubeconfig"
 az aks get-credentials -n "$CLUSTER" -g "$RG" --overwrite-existing
 
 echo "==> Enabling ALB Controller add-on (programs AGC)"
-az aks addon enable -n "$CLUSTER" -g "$RG" --addon alb-controller -o table
+az aks addon enable -n "$CLUSTER" -g "$RG" --addon application-load-balancer -o table
 
 echo "==> Waiting for ALB Controller pods to be Ready"
 kubectl wait --for=condition=Ready pods --all -n azure-alb-system --timeout=300s
