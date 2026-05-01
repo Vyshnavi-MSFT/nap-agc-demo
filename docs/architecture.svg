@@ -20,12 +20,12 @@
   <text x="650" y="232" font-size="20" fill="#166534" font-weight="700" text-anchor="middle">AGC · Load-Aware Routing</text>
   <text x="650" y="260" font-size="16" fill="#166534" text-anchor="middle">picks healthiest, least-loaded pod</text>
 
-  <!-- Two routing arrows: light to existing, heavy to new -->
-  <line x1="380" y1="290" x2="380" y2="385" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
-  <text x="380" y="345" font-size="16" fill="#64748b" font-weight="700" text-anchor="middle">light</text>
+  <!-- Two routing arrows: anchored to AGC bottom, ending at top of each node. Labels offset to the side. -->
+  <line x1="500" y1="287" x2="380" y2="385" stroke="#2563eb" stroke-width="3" marker-end="url(#arrBlue)"/>
+  <text x="420" y="345" font-size="16" fill="#64748b" font-weight="700">light</text>
 
-  <line x1="920" y1="290" x2="920" y2="385" stroke="#2563eb" stroke-width="11" marker-end="url(#arrBlue)"/>
-  <text x="920" y="345" font-size="16" fill="#2563eb" font-weight="700" text-anchor="middle">heavy</text>
+  <line x1="800" y1="287" x2="920" y2="385" stroke="#2563eb" stroke-width="11" marker-end="url(#arrBlue)"/>
+  <text x="820" y="345" font-size="16" fill="#2563eb" font-weight="700" text-anchor="end">heavy</text>
 
   <!-- ====== EXISTING NODE (left) ======
        Box: x=140, w=480, center=380 -->
