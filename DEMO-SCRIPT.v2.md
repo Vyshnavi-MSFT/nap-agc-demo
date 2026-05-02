@@ -96,7 +96,7 @@ kubectl get nodepool
 ```yaml
 karpenter.azure.com/sku-family       In [D, E]      # ← only general-purpose OR memory-optimized
 karpenter.sh/capacity-type           In [on-demand, spot]
-consolidationPolicy: WhenUnderutilized               # ← idle nodes get reclaimed
+consolidationPolicy: WhenEmptyOrUnderutilized               # ← idle nodes get reclaimed
 ```
 
 > *"This is the only NAP configuration I will write. I am not picking a VM SKU. I am giving Karpenter a **menu of families** and a cost policy. Zero nodes — NAP only acts on real demand."*

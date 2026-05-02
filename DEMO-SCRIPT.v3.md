@@ -187,7 +187,7 @@ bat manifests/nodepool.yaml          # or: cat
 ```yaml
 karpenter.azure.com/sku-family       In ["D", "E"]      # only general-purpose OR memory-optimized
 karpenter.sh/capacity-type           In ["on-demand", "spot"]
-consolidationPolicy: WhenUnderutilized                   # idle nodes get reclaimed
+consolidationPolicy: WhenEmptyOrUnderutilized                   # idle nodes get reclaimed
 ```
 
 > *"Three lines. That's the entire NAP configuration.*

@@ -58,7 +58,7 @@ flowchart TB
       KARP[Karpenter Controller<br/>watches Pending pods]
       NPCRD[NodePool / AKSNodeClass<br/>family · arch · capacity]
       AZ[Azure Compute<br/>D · E · F · GPU · Spot]
-      CONS[Consolidation<br/>WhenUnderutilized]
+      CONS[Consolidation<br/>WhenEmptyOrUnderutilized]
     end
 
     U -->|HTTPS| FE
@@ -101,7 +101,7 @@ kind: NodePool
 metadata: { name: default }
 spec:
   disruption:
-    consolidationPolicy: WhenUnderutilized
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   template:
     spec:
@@ -201,7 +201,7 @@ A 3-service e-commerce app — `frontend`, `api`, `checkout` — fronted by AGC.
 2. **Start with one `NodePool` and a wide SKU family** (e.g., `D`). Resist the urge to recreate node pool sprawl as multiple NodePools on day one. Let workload requirements pull diversity out of NAP, then split NodePools only when you need workload isolation.
 3. **Use Spot deliberately.** Add a second `NodePool` with `capacityType: Spot` and a taint; let batch / dev workloads tolerate it. You'll see double-digit savings without touching production routing.
 4. **Treat AGC's `Gateway` as a platform contract.** App teams own `HTTPRoute`s; the platform team owns `Gateway`s. This is the Gateway API's intended split-of-concerns and it scales beautifully.
-5. **Watch consolidation in production.** `WhenUnderutilized` + `consolidateAfter: 30s` is aggressive. For latency-sensitive prod, lengthen `consolidateAfter` and add `disruption.budgets` to cap churn during business hours.
+5. **Watch consolidation in production.** `WhenEmptyOrUnderutilized` + `consolidateAfter: 30s` is aggressive. For latency-sensitive prod, lengthen `consolidateAfter` and add `disruption.budgets` to cap churn during business hours.
 6. **NAP doesn't replace observability.** Wire Karpenter events into Container Insights / Prometheus. The signal "NAP launched an `E16s_v5`" is gold for capacity reviews.
 7. **Migration nuance:** you cannot turn NAP on for a cluster that already runs the cluster autoscaler. Plan a green/blue cluster cut-over rather than an in-place flip.
 

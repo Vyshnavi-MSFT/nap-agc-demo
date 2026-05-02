@@ -81,7 +81,7 @@ Highlight three things in the YAML on screen:
 
 - `karpenter.azure.com/sku-family In [D, E]` — only general-purpose or memory-optimized.
 - `karpenter.sh/capacity-type In [on-demand, spot]` — Karpenter can pick spot when safe.
-- `consolidationPolicy: WhenUnderutilized` — empty nodes get reclaimed.
+- `consolidationPolicy: WhenEmptyOrUnderutilized` — empty nodes get reclaimed.
 
 > *"Zero nodes. NAP only acts when there is real demand."*
 

@@ -4,7 +4,7 @@ metadata:
   name: default
 spec:
   disruption:
-    consolidationPolicy: WhenUnderutilized
+    consolidationPolicy: WhenEmptyOrUnderutilized
     consolidateAfter: 30s
   template:
     metadata:
