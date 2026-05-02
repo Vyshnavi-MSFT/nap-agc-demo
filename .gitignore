@@ -4,3 +4,6 @@
 .env
 .azure/
 node_modules/
+
+# Office lock files
+~$*
