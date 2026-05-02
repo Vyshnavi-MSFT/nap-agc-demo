@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: alb-infra
+---
+apiVersion: alb.networking.azure.io/v1
+kind: ApplicationLoadBalancer
+metadata:
+  name: alb
+  namespace: alb-infra
+spec:
+  associations:
+    - /subscriptions/64d48c73-c5f4-4817-93d8-65908359d9b4/resourceGroups/MC_nap-agc-demo-rg_nap-agc-demo_eastus2/providers/Microsoft.Network/virtualNetworks/aks-vnet-17794103/subnets/aks-appgateway

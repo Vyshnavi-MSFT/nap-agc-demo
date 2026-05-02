@@ -235,8 +235,10 @@ kubectl apply -f manifests/deployment-small.yaml      # shop-v1: 2 pods × 2 CPU
 ```
 NominatePod        pod/shop-v1-...     → NodeClaim/default-...
 NodeClaimCreated   nodeclaim/...
-Launched           Launched instance: Standard_D8ls_v5
+Launched           Launched instance: Standard_D8als_v6   (capacity-type: spot)
 ```
+
+> 💡 **Heads-up for the live run:** the exact SKU and capacity type **change every demo** — that's the point. You might see `D8s_v5`, `D8ls_v5`, `D8als_v6`, `D4s_v5`, on-demand or spot. Read out **whatever appears** — the surprise *is* the story.
 
 ### ⏸  PAUSE #1 — "I never asked for that" (3:25 – 3:35)
 
@@ -244,22 +246,31 @@ Launched           Launched instance: Standard_D8ls_v5
 
 `// 1… 2… 3… //`
 
-Now point at `Launched Standard_D8ls_v5`:
+Now point at the `Launched` line and read the SKU **out loud** exactly as it appears:
 
-> **"I never typed `D8ls_v5` anywhere. Karpenter looked at my pods, saw they wanted 2 CPUs and a few hundred megs of memory each, and picked the cheapest machine in the D family that fits both of them.*
+> **"`Standard_D8als_v6` — *spot*. I never typed that anywhere. Karpenter looked at my two pods, saw they want 2 CPUs and a few hundred megs of memory each, checked Azure's live price list, and picked the cheapest AMD machine in the D family that fits both of them — on **spot capacity**, which is up to 70% off retail.*
 >
-> *Pain #1 — **'no more guessing machine sizes'** — solved. On screen. Live. Without me touching anything."**
+> *I asked for 'D or E family' and 'on-demand or spot'. NAP did the rest. Pain #1 — **'no more guessing machine sizes'** — solved. On screen. Live. Without me touching anything."**
+
+> 🎤 **If it picks on-demand instead:** *"Today it picked on-demand because spot capacity for that SKU is tight in this region right now — and that's the point. Karpenter checks **live** capacity and price every time. I never have to think about it."*
 
 ### Step 4 — Confirm + plant the cost number (3:35 – 3:45)
 
 ```bash
-kubectl get nodes
+kubectl get nodes -L karpenter.azure.com/sku-name,karpenter.sh/capacity-type
 kubectl get pods -o wide
 kubectl get gateway gateway-01           # ADDRESS now populated
 curl http://<AGC-IP>/                    # nginx welcome page
 ```
 
-> *"One D8ls node — about **38 cents an hour** in East US. Hold that number; we'll come back to it when the sale ends."*
+You'll see something like:
+
+```
+NAME                STATUS   AGE   SKU-NAME            CAPACITY-TYPE
+aks-default-7ct97   Ready    2m    Standard_D8als_v6   spot
+```
+
+> *"One D8-class node, **on spot** — pennies an hour instead of dollars. Hold that number; we'll come back to it when the sale ends."*
 
 ---
 
