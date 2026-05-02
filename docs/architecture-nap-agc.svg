@@ -1,0 +1,250 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 980" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <symbol id="pod" viewBox="-50 -56 100 112" overflow="visible">
+      <polygon points="0,-54 47,-27 47,27 0,54 -47,27 -47,-27"
+               fill="#326CE5" stroke="#1E4DB7" stroke-width="2"/>
+      <g fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <polygon points="0,-22 22,-10 22,16 0,28 -22,16 -22,-10" fill="none"/>
+        <line x1="0" y1="-22" x2="0" y2="2"/>
+        <line x1="0" y1="2"  x2="22" y2="-10"/>
+        <line x1="0" y1="2"  x2="-22" y2="-10"/>
+      </g>
+    </symbol>
+
+    <symbol id="pod-hot" viewBox="-56 -62 112 124" overflow="visible">
+      <polygon points="0,-54 47,-27 47,27 0,54 -47,27 -47,-27"
+               fill="#326CE5" stroke="#1E4DB7" stroke-width="2"/>
+      <g fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <polygon points="0,-22 22,-10 22,16 0,28 -22,16 -22,-10" fill="none"/>
+        <line x1="0" y1="-22" x2="0" y2="2"/>
+        <line x1="0" y1="2"  x2="22" y2="-10"/>
+        <line x1="0" y1="2"  x2="-22" y2="-10"/>
+      </g>
+      <polygon points="0,-58 51,-29 51,29 0,58 -51,29 -51,-29"
+               fill="none" stroke="#FF5A4A" stroke-width="3" opacity="0.95"/>
+    </symbol>
+
+    <symbol id="slot-empty" viewBox="-50 -56 100 112" overflow="visible">
+      <polygon points="0,-54 47,-27 47,27 0,54 -47,27 -47,-27"
+               fill="#8C9099" stroke="#5A5E66" stroke-width="2"/>
+      <circle cx="0" cy="0" r="6" fill="#5A5E66"/>
+    </symbol>
+
+    <symbol id="sched" viewBox="-60 -64 120 128" overflow="visible">
+      <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
+               fill="#326CE5" stroke="#1E4DB7" stroke-width="2"/>
+      <g fill="#FFFFFF">
+        <circle cx="0" cy="-4" r="14"/>
+        <rect x="-3" y="-26" width="6" height="9" rx="1"/>
+        <rect x="-3" y="11"  width="6" height="9" rx="1"/>
+        <rect x="-26" y="-7" width="9" height="6" rx="1"/>
+        <rect x="17"  y="-7" width="9" height="6" rx="1"/>
+      </g>
+      <circle cx="0" cy="-4" r="6" fill="#326CE5"/>
+      <text x="0" y="40" text-anchor="middle" font-size="14" font-weight="700" fill="#FFFFFF">sched</text>
+    </symbol>
+
+    <symbol id="kicon" viewBox="-60 -64 130 152" overflow="visible">
+      <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
+               fill="#326CE5" stroke="#1E4DB7" stroke-width="2"/>
+      <polygon points="14,52 38,76 36,46" fill="#326CE5" stroke="#1E4DB7" stroke-width="2"/>
+      <rect x="-22" y="-22" width="44" height="44" rx="6" fill="#FFFFFF"/>
+      <text x="0" y="11" text-anchor="middle" font-size="36" font-weight="700" fill="#326CE5">K</text>
+    </symbol>
+
+    <symbol id="chip-2x2" viewBox="-110 -110 220 220" overflow="visible">
+      <g fill="#E8893D">
+        <rect x="-50" y="-104" width="20" height="22"/>
+        <rect x="30"  y="-104" width="20" height="22"/>
+        <rect x="-50" y="82"   width="20" height="22"/>
+        <rect x="30"  y="82"   width="20" height="22"/>
+        <rect x="-104" y="-50" width="22" height="20"/>
+        <rect x="-104" y="30"  width="22" height="20"/>
+        <rect x="82"   y="-50" width="22" height="20"/>
+        <rect x="82"   y="30"  width="22" height="20"/>
+      </g>
+      <rect x="-82" y="-82" width="164" height="164" rx="10" fill="#E8893D" stroke="#A8521A" stroke-width="3"/>
+      <rect x="-66" y="-66" width="132" height="132" rx="6" fill="#C9722D"/>
+    </symbol>
+
+    <symbol id="chip-3x3" viewBox="-150 -150 300 300" overflow="visible">
+      <g fill="#E8893D">
+        <rect x="-90" y="-144" width="20" height="22"/>
+        <rect x="-10" y="-144" width="20" height="22"/>
+        <rect x="70"  y="-144" width="20" height="22"/>
+        <rect x="-90" y="122"  width="20" height="22"/>
+        <rect x="-10" y="122"  width="20" height="22"/>
+        <rect x="70"  y="122"  width="20" height="22"/>
+        <rect x="-144" y="-90" width="22" height="20"/>
+        <rect x="-144" y="-10" width="22" height="20"/>
+        <rect x="-144" y="70"  width="22" height="20"/>
+        <rect x="122"  y="-90" width="22" height="20"/>
+        <rect x="122"  y="-10" width="22" height="20"/>
+        <rect x="122"  y="70"  width="22" height="20"/>
+      </g>
+      <rect x="-122" y="-122" width="244" height="244" rx="10" fill="#E8893D" stroke="#A8521A" stroke-width="3"/>
+      <rect x="-104" y="-104" width="208" height="208" rx="6" fill="#C9722D"/>
+    </symbol>
+
+    <symbol id="agc-logo" viewBox="0 0 18 18" overflow="visible">
+      <defs>
+        <linearGradient id="agcGrad1" x1="9" y1="16.285" x2="9" y2=".534" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#005ba1"/>
+          <stop offset="1" stop-color="#0078d4"/>
+        </linearGradient>
+        <radialGradient id="agcGrad2" cx="9.009" cy="8.4" r="8.123" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="gray"/>
+          <stop offset=".521" stop-color="#ccc"/>
+          <stop offset=".908" stop-color="gray"/>
+        </radialGradient>
+        <linearGradient id="agcGrad3" x1="-1.246" y1="825.736" x2=".764" y2="827.746" gradientTransform="translate(-575.745 600.469) rotate(-135)" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#5ea0ef"/><stop offset="1" stop-color="#83b9f9"/>
+        </linearGradient>
+        <linearGradient id="agcGrad4" x1="-104.431" y1="575.695" x2="-104.431" y2="578.537" gradientTransform="translate(-95.412 585.404) rotate(-180)" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#5ea0ef"/><stop offset="1" stop-color="#83b9f9"/>
+        </linearGradient>
+        <linearGradient id="agcGrad5" x1="157.457" y1="814.945" x2="160.3" y2="814.945" gradientTransform="translate(-811.839 173.116) rotate(-90)" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#5ea0ef"/><stop offset="1" stop-color="#83b9f9"/>
+        </linearGradient>
+        <linearGradient id="agcGrad6" x1="157.457" y1="441.025" x2="160.3" y2="441.025" gradientTransform="translate(455.975 173.116) rotate(-90) scale(1 -1)" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#5ea0ef"/><stop offset="1" stop-color="#83b9f9"/>
+        </linearGradient>
+      </defs>
+      <path d="M18,8.412c0-.104-.027-.209-.08-.303L13.722,.836c-.109-.187-.309-.302-.525-.303H4.803c-.217,.002-.417,.118-.525,.306L.08,8.103c-.107,.188-.107,.418,0,.606l4.197,7.27c.108,.188,.308,.304,.525,.306H13.197c.217-.002,.417-.118,.525-.306l4.197-7.264c.053-.094,.08-.198,.08-.303" fill="url(#agcGrad1)"/>
+      <polygon points="15.367 13.821 9.609 8.063 9.609 8.002 9.548 8.002 9.437 7.892 9.327 8.002 8.742 8.002 8.583 7.845 2.687 13.824 3.526 14.651 8.431 9.677 8.431 16.045 9.609 16.045 9.609 9.729 14.534 14.654 15.367 13.821" fill="url(#agcGrad2)"/>
+      <circle cx="9.02" cy="16.045" r="1.421" fill="url(#agcGrad3)"/>
+      <path d="M6.581,8.279c-.008,1.352,1.081,2.454,2.433,2.463,1.352,.008,2.454-1.081,2.463-2.433,.007-1.104-.726-2.076-1.79-2.373v-1.75c.736-.38,1.024-1.285,.644-2.022-.38-.736-1.285-1.024-2.022-.644-.736,.38-1.024,1.285-.644,2.022,.143,.276,.368,.501,.644,.644v1.794c-1.016,.307-1.716,1.237-1.728,2.299Z" fill="#fff"/>
+      <circle cx="9.02" cy="8.288" r="1.421" fill="url(#agcGrad4)"/>
+      <circle cx="3.106" cy="14.238" r="1.421" fill="url(#agcGrad5)"/>
+      <circle cx="14.951" cy="14.238" r="1.421" fill="url(#agcGrad6)"/>
+    </symbol>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FFFFFF"/>
+    </marker>
+    <marker id="arrow-cool" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5EA0EF"/>
+    </marker>
+    <marker id="arrow-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#FF5A4A" opacity="0.55"/>
+    </marker>
+  </defs>
+
+  <rect width="1900" height="980" fill="#0F2238"/>
+
+  <g fill="#FFFFFF" font-weight="600">
+    <text x="160" y="120" font-size="26">Pending pods</text>
+    <text x="855" y="170" font-size="26">Existing capacity</text>
+    <text x="1330" y="120" font-size="26">Optimized capacity</text>
+    <text x="1620" y="120" font-size="26">Application Gateway</text>
+    <text x="1620" y="150" font-size="26">for Containers</text>
+    <text x="140" y="640" font-size="26">Unschedulable pods</text>
+    <text x="845" y="640" font-size="26">Just-in-time capacity</text>
+  </g>
+
+  <!-- Pending pods -->
+  <use href="#pod" x="190" y="200" width="80" height="90"/>
+  <use href="#pod" x="280" y="200" width="80" height="90"/>
+  <use href="#pod" x="370" y="200" width="80" height="90"/>
+  <use href="#pod" x="220" y="290" width="80" height="90"/>
+  <use href="#pod" x="320" y="290" width="80" height="90"/>
+
+  <line x1="465" y1="280" x2="535" y2="280" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+  <use href="#sched" x="540" y="220" width="120" height="128"/>
+  <line x1="665" y1="280" x2="745" y2="280" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Existing capacity chip 1 -->
+  <g transform="translate(840,200)">
+    <use href="#chip-2x2" x="0" y="0" width="200" height="200"/>
+    <use href="#slot-empty" x="50"  y="50"  width="42" height="48"/>
+    <use href="#pod"        x="108" y="50"  width="42" height="48"/>
+    <use href="#slot-empty" x="50"  y="108" width="42" height="48"/>
+    <use href="#slot-empty" x="108" y="108" width="42" height="48"/>
+  </g>
+
+  <!-- Existing capacity chip 2 -->
+  <g transform="translate(840,420)">
+    <use href="#chip-2x2" x="0" y="0" width="200" height="200"/>
+    <use href="#slot-empty" x="50"  y="50"  width="42" height="48"/>
+    <use href="#pod"        x="108" y="50"  width="42" height="48"/>
+    <use href="#slot-empty" x="50"  y="108" width="42" height="48"/>
+    <use href="#pod"        x="108" y="108" width="42" height="48"/>
+  </g>
+
+  <line x1="280" y1="395" x2="280" y2="630" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Unschedulable pods -->
+  <use href="#pod" x="200" y="660" width="80" height="90"/>
+  <use href="#pod" x="295" y="660" width="80" height="90"/>
+  <use href="#pod" x="240" y="745" width="80" height="90"/>
+
+  <line x1="395" y1="745" x2="535" y2="745" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+  <use href="#kicon" x="540" y="685" width="120" height="140"/>
+  <line x1="665" y1="745" x2="745" y2="745" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- JIT capacity chip -->
+  <g transform="translate(840,660)">
+    <use href="#chip-2x2" x="0" y="0" width="200" height="200"/>
+    <use href="#pod"        x="50"  y="50"  width="42" height="48"/>
+    <use href="#pod"        x="108" y="50"  width="42" height="48"/>
+    <use href="#pod"        x="50"  y="108" width="42" height="48"/>
+    <use href="#slot-empty" x="108" y="108" width="42" height="48"/>
+  </g>
+
+  <!-- Karpenter consolidator -->
+  <use href="#kicon" x="1100" y="430" width="130" height="155"/>
+  <path d="M 1040 300 H 1095 V 480" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+  <path d="M 1040 760 H 1095 V 540" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+  <line x1="1235" y1="475" x2="1310" y2="350" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1235" y1="540" x2="1310" y2="700" stroke="#FFFFFF" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- Optimized big chip (HOT pods - saturated) -->
+  <g transform="translate(1310,170)">
+    <use href="#chip-3x3" x="0" y="0" width="280" height="280"/>
+    <use href="#pod-hot" x="42"  y="40"  width="50" height="58"/>
+    <use href="#pod-hot" x="115" y="40"  width="50" height="58"/>
+    <use href="#pod-hot" x="188" y="40"  width="50" height="58"/>
+    <use href="#pod-hot" x="42"  y="113" width="50" height="58"/>
+    <use href="#pod-hot" x="115" y="113" width="50" height="58"/>
+    <use href="#pod-hot" x="188" y="113" width="50" height="58"/>
+    <use href="#pod-hot" x="42"  y="186" width="50" height="58"/>
+    <use href="#pod-hot" x="115" y="186" width="50" height="58"/>
+    <use href="#pod-hot" x="188" y="186" width="50" height="58"/>
+  </g>
+
+  <!-- Optimized small chip (COOL pods) -->
+  <g transform="translate(1370,560)">
+    <use href="#chip-2x2" x="0" y="0" width="180" height="180"/>
+    <use href="#pod"        x="42"  y="42"  width="40" height="46"/>
+    <use href="#slot-empty" x="98"  y="42"  width="40" height="46"/>
+    <use href="#slot-empty" x="42"  y="98"  width="40" height="46"/>
+    <use href="#pod"        x="98"  y="98"  width="40" height="46"/>
+  </g>
+
+  <!-- AGC -->
+  <use href="#agc-logo" x="1660" y="180" width="160" height="160"/>
+
+  <!-- Cool (solid) routing → small chip -->
+  <g stroke="#5EA0EF" stroke-width="4" fill="none" opacity="0.95">
+    <path d="M 1690 350 C 1600 440, 1520 590, 1455 620" marker-end="url(#arrow-cool)"/>
+    <path d="M 1720 350 C 1660 460, 1580 630, 1530 680" marker-end="url(#arrow-cool)"/>
+  </g>
+
+  <!-- Hot (dashed) routing → big chip -->
+  <g stroke="#FF5A4A" stroke-width="2.5" fill="none" opacity="0.55" stroke-dasharray="8 6">
+    <path d="M 1670 280 C 1580 240, 1530 220, 1490 215" marker-end="url(#arrow-hot)"/>
+    <path d="M 1700 290 C 1640 270, 1600 260, 1565 255" marker-end="url(#arrow-hot)"/>
+  </g>
+
+  <!-- Routing legend -->
+  <g font-size="14" fill="#FFFFFF">
+    <g transform="translate(1640,400)">
+      <line x1="0"  y1="0" x2="38" y2="0" stroke="#5EA0EF" stroke-width="4" marker-end="url(#arrow-cool)"/>
+      <text x="50" y="5" fill="#FFFFFF" opacity="0.9">more traffic → cool pods</text>
+    </g>
+    <g transform="translate(1640,432)">
+      <line x1="0"  y1="0" x2="38" y2="0" stroke="#FF5A4A" stroke-width="2.5" stroke-dasharray="8 6" opacity="0.55" marker-end="url(#arrow-hot)"/>
+      <text x="50" y="5" fill="#FFFFFF" opacity="0.9">less traffic → hot pods</text>
+    </g>
+  </g>
+</svg>
