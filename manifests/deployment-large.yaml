@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: mcr.microsoft.com/oss/nginx/nginx:1.25.4
+          image: nginx:1.25-alpine
           ports:
             - containerPort: 80
           resources:
             requests:
-              cpu: "4000m"
-              memory: "10Gi"
+              cpu: "500m"
+              memory: "512Mi"
             limits:
-              cpu: "4000m"
-              memory: "10Gi"
+              cpu: "1000m"
+              memory: "1Gi"

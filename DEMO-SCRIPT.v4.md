@@ -335,7 +335,7 @@ NodeClaimCreated   nodeclaim/...
 Launched           Status condition transitioned ... Reason: Launched
 Registered ... Initialized ... Ready: True
 ```
-
+kubectl get pods -o wide
 > ⚠️ **Heads-up:** the `Launched` event message **does not include the SKU name** in this Karpenter version. To surface it, run command #4 below.
 
 ### Step 4 — Surface the picked SKU and **PAUSE #1**
@@ -363,16 +363,15 @@ Now point at the `SKU-NAME` cell and read it **out loud, exactly as it appears**
 >
 > *Pain #1 — **'no more guessing machine sizes'** — solved. On screen. Live. Without me touching anything."**
 
-> 🎤 **The SKU you see may differ from mine.** Karpenter picks based on **today's** prices and capacity, in **your** region. You might see `D8s_v5`, `D8ls_v5`, `D8als_v6`, on-demand, or spot. **Read whatever appears — the surprise *is* the story.**
 
-> 🎤 **If it picks on-demand instead of spot:** *"Today it picked on-demand because spot capacity for that SKU is tight in this region right now — and that's the point. Karpenter checks **live** every time."*
+>  *"Today it picked on-demand because spot capacity for that SKU is tight in this region right now — and that's the point. Karpenter checks **live** every time."*
 
 ### Step 5 — Plant the cost number
 
 ```bash
 kubectl get pods -o wide
 kubectl get gateway gateway-01           # ADDRESS now populated (or still pending — see fallback)
-curl http://<AGC-IP>/                    # nginx welcome page
+curl http://erfycuc5hhdtajac.fz77.alb.azure.com/                    # nginx welcome page
 ```
 
 > *"One D8-class node, **on spot** — pennies an hour instead of dollars. Hold that number; we'll come back to it when the sale ends."*
@@ -394,6 +393,7 @@ This slide has the "$8 saved · what didn't happen tonight" callout. Leave it up
 ### Step 6 — Apply the recommendation engine
 
 ```bash
+cat manifests/deployment-large.yaml  
 kubectl apply -f manifests/deployment-large.yaml      # recommender: 3 pods × 4 CPU / 10 GiB RAM
 ```
 
@@ -488,6 +488,7 @@ Disrupting          nodeclaim/...   via consolidation: replace
 WaitingForDeletion  node/...
 Deleted             node/...
 ```
+kubectl get pods -o wide  
 
 (1–2 minutes. Fill the silence with the cost framing below.)
 
