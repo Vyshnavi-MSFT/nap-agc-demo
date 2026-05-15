@@ -173,6 +173,15 @@ Full-bleed diagram. Point with your cursor as you talk:
 
 **Click → Slide 11.** Then switch to terminal.
 
+> 🎬 **Director's note — when to flash back to the architecture slide (Slide 10):**
+> Bring it back up **three times** during the live demo to tie the moving parts together:
+> 1. **End of Act 1** — point at the *Karpenter hexagon* and say *"that just happened, live."*
+> 2. **End of Act 2** — point at the *AGC hexagon* and say *"and that's what just routed your traffic."*
+> 3. **Start of Act 3** — point at the *consolidation arrow* and say *"watch this part work in reverse."*
+>
+> 🎬 **Director's note — when to show the "Demo in 3 Acts" slide (Slide 13):**
+> Use it **twice**: once as a **roadmap** right before Act 1 starts (so the audience knows the journey), and again at the **end** as the recap. Same slide, two different jobs.
+
 ---
 
 ## 🪟 Terminal layout — the "always-on narrator"
@@ -319,10 +328,16 @@ az network alb list -g MC_nap-agc-demo-rg_nap-agc-demo_eastus2 -o table
 
 ### Step 3 — Deploy the baseline shop workload
 
+> 🎬 **Quick callback to Slide 13 ("Demo in 3 Acts") — flip to it for 5 seconds as a roadmap:**
+> *"Three acts tonight. Act 1 — what machine? Act 2 — the spike. Act 3 — the bill. Right now, Act 1."*
+> Flip back to **Slide 11** before you type.
+
 ```bash
 cat manifests/deployment-small.yaml
-kubectl apply -f manifests/deployment-small.yaml      # shop-v1: 2 pods × 2 CPU
+kubectl apply -f manifests/deployment-small.yaml      # shop-v1: 2 pods × 1.5 CPU (D-family target)
 ```
+
+> *"Two replicas, 1.5 CPU each. A normal little stateless web app — nothing exotic. Watch the panes."*
 
 **Watch what happens — point at each pane:**
 
@@ -335,7 +350,16 @@ NodeClaimCreated   nodeclaim/...
 Launched           Status condition transitioned ... Reason: Launched
 Registered ... Initialized ... Ready: True
 ```
-kubectl get pods -o wide
+
+**Then prove it on the driver pane (Pane D):**
+
+```bash
+kubectl get pods -o wide                                       # shop-v1 pods now Running, with node assignments
+kubectl get nodes -L karpenter.azure.com/sku-name,karpenter.sh/capacity-type
+```
+
+> *"Look at Pane D. Both shop pods are **Running** — and notice the `NODE` column: they landed on a brand-new node that didn't exist sixty seconds ago. Pane A on the right shows the same node from the cluster's point of view, with the SKU Karpenter picked."*
+
 > ⚠️ **Heads-up:** the `Launched` event message **does not include the SKU name** in this Karpenter version. To surface it, run command #4 below.
 
 ### Step 4 — Surface the picked SKU and **PAUSE #1**
@@ -374,7 +398,10 @@ kubectl get gateway gateway-01           # ADDRESS now populated (or still pendi
 curl http://erfycuc5hhdtajac.fz77.alb.azure.com/                    # nginx welcome page
 ```
 
-> *"One D8-class node, **on spot** — pennies an hour instead of dollars. Hold that number; we'll come back to it when the sale ends."*
+> *"One D-class node, **on spot** — pennies an hour instead of dollars. Hold that number; we'll come back to it when the sale ends."*
+
+> 🎬 **Tie-back moment — flip to Slide 10 (Architecture) for 10 seconds.**
+> Point at the **Karpenter hexagon** in the middle: *"What you just watched on the terminal is exactly this part of the diagram. Pending pod → Karpenter brain → new node, on the cheapest VM that fits. Live. No human."* Then advance to Slide 12.
 
 ---
 
@@ -394,8 +421,10 @@ This slide has the "$8 saved · what didn't happen tonight" callout. Leave it up
 
 ```bash
 cat manifests/deployment-large.yaml  
-kubectl apply -f manifests/deployment-large.yaml      # recommender: 3 pods × 4 CPU / 10 GiB RAM
+kubectl apply -f manifests/deployment-large.yaml      # recommender: 2 pods × 2 CPU / 4 GiB RAM (memory-heavy)
 ```
+
+> *"Same shape as before — a YAML file, `kubectl apply`. But look at the **resources** block on screen: 4 GiB of memory per pod. That's the hint Karpenter needs."*
 
 **Set up the next reveal (10 seconds):**
 
@@ -405,26 +434,29 @@ kubectl apply -f manifests/deployment-large.yaml      # recommender: 3 pods × 4
 - **Pane C:** Karpenter creates a *brand new* NodeClaim
 - **Pane A:** new node appears with a **different** SKU
 
-Then run:
+**Then prove it on the driver pane (Pane D):**
 
 ```bash
+kubectl get pods -o wide                                       # shop-v1 + recommender, see which NODE each lives on
 kubectl get nodes -L karpenter.azure.com/sku-name,karpenter.sh/capacity-type
 ```
 
 You'll see something like:
 
 ```
-aks-default-7ct97   Ready  ...  Standard_D8als_v6   spot       ← shop-v1 lives here
-aks-default-xxxxx   Ready  ...  Standard_E16s_v5    on-demand  ← recommender lives here
+aks-default-7ct97   Ready  ...  Standard_D4als_v6   spot       ← shop-v1 lives here
+aks-default-xxxxx   Ready  ...  Standard_E4s_v5     on-demand  ← recommender lives here
 ```
+
+> *"Two nodes, two different families. Look at the `NODE` column in `kubectl get pods` — shop pods are on the D-node, recommender pods are on the E-node. Karpenter bin-packed them by family without a second YAML file."*
 
 ### ⏸  PAUSE #2a — Different family, no extra config
 
 `// 1… 2… 3… //`
 
-> **"`E16s_v5` — that's **memory-optimized**. A different VM family from the D8 we got a minute ago.*
+> **"`E4s_v5` — that's **memory-optimized**. A different VM family from the D-node we got a minute ago.*
 >
-> *Karpenter saw a pod that asked for 10 gigs of memory and quietly switched families. The platform team did **not** write a second node pool. **One YAML file, two completely different machines, zero human in the loop.*** That's pain #2 — solved live."**
+> *Karpenter saw a pod that asked for 4 GiB of memory per core and quietly switched families. The platform team did **not** write a second node pool. **One YAML file, two completely different machines, zero human in the loop.*** That's pain #2 — solved live."**
 
 ### Step 7 — Scale the shop spike
 
@@ -456,7 +488,7 @@ When the table prints:
 > **"See it? Cool pods grab the spike. Originally-busy pods get fewer new connections — so they don't tip over. Without load-aware routing, all six pods would split the spike equally and the warm ones would saturate first."**
 
 ```bash
-for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n" http://<AGC-IP>/; done
+for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n" http://erfycuc5hhdtajac.fz77.alb.azure.com/; done
 ```
 
 > *"Ten 200s in a row. Customers never saw a single 5xx."*
@@ -465,11 +497,17 @@ for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n" http://<AGC-IP
 
 > **"Two completely different workloads. Two different machine families. The right machine for each. The spike never reached an over-saturated pod. The on-call engineer is still at dinner."**
 
+> 🎬 **Tie-back moment — flip to Slide 10 (Architecture) again, second visit.**
+> Point at the **AGC hexagon on the right** while you say: *"That's the half of the diagram you just watched in action — calm-pod routing. And the K hexagon in the middle just added a second node family for us. Both halves of the picture are now real on the cluster."*
+
 ---
 
 # Act 3 — "After the sale, where does the cost go?"  *(14:30 – 16:30)*  — *back to Slide 12*
 
 ### Set the scene
+
+> 🎬 **Quick flip to Slide 10 (Architecture), third and final visit.**
+> Point at the **consolidation arrow** going *back* into the K hexagon: *"This part of the diagram is the one nobody usually pays attention to — Karpenter going in reverse. Let's make it real."* Then return to Slide 12.
 
 > *"It's 11 p.m. Sale is over. In a traditional cluster, that big memory machine sits on the bill until morning — because nobody wants to be the engineer who deletes a node at midnight."*
 
@@ -488,7 +526,15 @@ Disrupting          nodeclaim/...   via consolidation: replace
 WaitingForDeletion  node/...
 Deleted             node/...
 ```
-kubectl get pods -o wide  
+
+**After ~90 seconds, prove the consolidation on the driver pane (Pane D):**
+
+```bash
+kubectl get pods -o wide                                       # only 2 shop pods left, no recommender
+kubectl get nodes -L karpenter.azure.com/sku-name,karpenter.sh/capacity-type
+```
+
+> *"Look at Pane D — the E-family node is **gone**. Karpenter saw it had no pods left and removed it. We're back to one workload node, just like we started."*
 
 (1–2 minutes. Fill the silence with the cost framing below.)
 
@@ -496,7 +542,7 @@ kubectl get pods -o wide
 
 Bring your energy down. This isn't a victory lap — it's relief.
 
-> **"That E16s memory machine just got terminated. About **\$1 an hour** in East US 2. We had it for one hour during the sale.*
+> **"That memory-optimized machine just got terminated. About **\$1 an hour** in East US 2. We had it for one hour during the sale.*
 >
 > *Here's what didn't happen tonight:*
 >
@@ -519,9 +565,9 @@ Use this slide to recap visually:
 
 | Act | Pain | What we showed |
 |---|---|---|
-| 1 | "What size?" | NAP picked `D8als_v6 spot` from a 3-line config |
-| 2 | "We need memory now!" | NAP added `E16s_v5` automatically; AGC routed traffic to calm pods |
-| 3 | "Cost after the sale?" | NAP terminated the E16s; ~$8 saved per node per night |
+| 1 | "What size?" | NAP picked a `D`-family node (often spot) from a 3-line config |
+| 2 | "We need memory now!" | NAP added an `E`-family node automatically; AGC routed traffic to calm pods |
+| 3 | "Cost after the sale?" | NAP terminated the E-node; ~$8 saved per node per night |
 
 **Click → Slide 14.**
 

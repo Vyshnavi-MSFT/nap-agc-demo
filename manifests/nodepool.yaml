@@ -28,6 +28,12 @@ spec:
         - key: karpenter.azure.com/sku-family
           operator: In
           values: ["D", "E"]
+        - key: karpenter.azure.com/sku-cpu
+          operator: Lt
+          values: ["9"]
+  limits:
+    cpu: "16"
+    memory: "64Gi"
 ---
 apiVersion: karpenter.azure.com/v1beta1
 kind: AKSNodeClass
