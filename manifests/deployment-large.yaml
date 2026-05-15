@@ -20,10 +20,18 @@ spec:
           image: nginx:1.25-alpine
           ports:
             - containerPort: 80
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
           resources:
             requests:
-              cpu: "2000m"
-              memory: "4Gi"
+              cpu: "500m"
+              memory: "6Gi"
             limits:
-              cpu: "2000m"
-              memory: "4Gi"
+              cpu: "500m"
+              memory: "6Gi"
+      volumes:
+        - name: conf
+          configMap:
+            name: nginx-podname

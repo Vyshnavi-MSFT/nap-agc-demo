@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-podname
+  namespace: default
+data:
+  default.conf: |
+    server {
+      listen 80;
+      # Echo the pod's hostname (= pod name) on every request.
+      # This is what makes the load-aware routing demo visible:
+      # each request reveals exactly which pod served it.
+      location / {
+        add_header Content-Type text/plain;
+        add_header X-Pod-Name $hostname always;
+        return 200 "$hostname\n";
+      }
+      # Tiny health endpoint AGC will probe.
+      location = /healthz {
+        return 200 "ok\n";
+      }
+    }

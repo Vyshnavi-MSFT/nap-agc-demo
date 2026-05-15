@@ -1,37 +1,30 @@
 #!/usr/bin/env bash
 # Generate sustained traffic against AGC and report per-pod hit distribution.
-# Demonstrates AGC's load-aware routing: cool pods receive more new connections
-# than already-busy pods.
+# Requires manifests/nginx-podname-config.yaml — nginx echoes its hostname
+# (= pod name) so we can count hits per pod from outside the cluster.
 
 set -euo pipefail
 
-DURATION="${DURATION:-60}"
-CONCURRENCY="${CONCURRENCY:-20}"
+REQUESTS="${REQUESTS:-200}"     # total requests to send
+PARALLEL="${PARALLEL:-10}"      # concurrent curls
 
 ADDR=$(kubectl get gateway gateway-01 -o jsonpath='{.status.addresses[0].value}')
 [[ -n "$ADDR" ]] || { echo "Gateway address not ready"; exit 1; }
 
-echo "==> Target: http://$ADDR/  duration=${DURATION}s  concurrency=$CONCURRENCY"
+echo "==> Target: http://$ADDR/"
+echo "==> Sending $REQUESTS requests, $PARALLEL in parallel..."
+echo
 
-# Tag each pod's nginx with its own pod IP via a downward-API env var so the
-# response identifies the pod that served it. (Done with a custom config; here
-# we use the simpler approach: hit /etc/hostname via a status header.)
-echo "==> Running load generator pod (alpine + curl)"
-kubectl run loadgen --rm -i --restart=Never --image=alpine:3.20 --quiet -- \
-  sh -c "
-    apk add --no-cache curl >/dev/null 2>&1
-    end=\$(( \$(date +%s) + $DURATION ))
-    while [ \$(date +%s) -lt \$end ]; do
-      for i in \$(seq 1 $CONCURRENCY); do
-        curl -s -o /dev/null -w '%{remote_ip}\n' http://$ADDR/ &
-      done
-      wait
-    done
-  " | sort | uniq -c | sort -rn | awk 'BEGIN{print \"  hits  pod-or-edge-IP\"} {printf \"  %5d  %s\n\", \$1, \$2}'
+# Use xargs to parallelize curls and capture each pod name.
+seq 1 "$REQUESTS" \
+  | xargs -P "$PARALLEL" -I{} curl -s --max-time 5 "http://$ADDR/" \
+  | sort | uniq -c | sort -rn \
+  | awk 'BEGIN{
+           printf "  %-6s  %s\n", "HITS", "POD";
+           printf "  %-6s  %s\n", "----", "---";
+         }
+         { printf "  %-6d  %s\n", $1, $2 }'
 
 echo
-echo "==> Note: %{remote_ip} is the AGC frontend IP (single value). For per-pod"
-echo "    distribution, the demo cluster has nginx configured with the downward"
-echo "    API to expose POD_IP in a response header. Inspect with:"
-echo "      kubectl exec deploy/shop-v1 -- curl -sI http://localhost/ | grep X-Pod-IP"
-echo "    or watch real-time per-pod load:  kubectl top pods -l app=shop-v1 --containers"
+echo "==> Tip: for live per-pod CPU during load, run in another pane:"
+echo "     kubectl top pods -l app=shop-v1 --containers --watch"

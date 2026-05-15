@@ -265,11 +265,11 @@ kubectl get gatewayclass azure-alb-external
 
 ### Open
 
-> *"One system node, no workload nodes, no node pool. Today Contoso ships the new shop service."*
+> *"One system node, no workload nodes. There IS a default NodePool already — AKS creates one for you when NAP is enabled. Today Contoso wants to ship the new shop service, but with their **own** rules: 'use D or E family, mix on-demand and spot, clean up empties.' Watch."*
 
 ```bash
 kubectl get nodes
-kubectl get nodepool                 # empty — no pool yet
+kubectl get nodepool                 # the auto-created default NodePool from NAP=Auto
 ```
 
 ### Step 1 — Apply the NodePool
@@ -295,8 +295,9 @@ consolidationPolicy: WhenEmptyOrUnderutilized
 > *Everything else — what size, when to scale, when to remove — is Karpenter's call."*
 
 ```bash
-kubectl apply -f manifests/nodepool.yaml
+kubectl apply -f manifests/nodepool.yaml      # replaces the auto-created default with our menu
 kubectl get nodepool
+kubectl get nodepool default -o yaml | grep -A3 'sku-family\|capacity-type\|limits:'
 ```
 
 ### Step 2 — Wire up the AGC frontend
@@ -304,6 +305,10 @@ kubectl get nodepool
 ```bash
 cat  manifests/nginx-service.yaml
 kubectl apply -f manifests/nginx-service.yaml
+
+# Apply the tiny ConfigMap that makes nginx echo its pod name on every request.
+# This is what makes the load-aware routing demo *visible* later in Act 2.
+kubectl apply -f manifests/nginx-podname-config.yaml
 
 cat  manifests/gateway.yaml
 kubectl apply -f manifests/gateway.yaml
@@ -471,27 +476,46 @@ kubectl scale deployment shop-v1 --replicas=6
 kubectl get pods -o wide              # 6 shop + 3 recommender, mixed across nodes
 ```
 
-### Step 8 — Prove load-aware routing  *(only if AGC is Programmed; otherwise skip)*
+### Step 8 — Prove AGC is fanning traffic across all 6 pods  *(only if AGC is Programmed; otherwise skip)*
 
-> *"Now AGC's turn. AGC is **not** a round-robin load balancer. The original two shop pods are already busy serving the spike. AGC tracks how busy each pod is and sends new connections to the **calm** pods first."*
+> *"Now AGC's turn. We just scaled from 2 pods to 6. Without a load balancer in front, customers would still be hitting only the original two. Watch what AGC does — it discovers the new pods automatically and starts spreading traffic across all six. No DNS reconfig, no manual upstream update."*
 
-```bash
-bash scripts/06-load-test.sh           # 60 seconds; prints per-pod request distribution
-```
-
-While it runs:
-
-> *"Watch the per-pod numbers when this finishes. The pods on the brand-new node should catch more new connections than the original two."*
-
-When the table prints:
-
-> **"See it? Cool pods grab the spike. Originally-busy pods get fewer new connections — so they don't tip over. Without load-aware routing, all six pods would split the spike equally and the warm ones would saturate first."**
+**First: a quick 10-shot burst that's easy to read live.** Each line shows the HTTP code and the pod that served the request — single curl, no double-hits:
 
 ```bash
-for i in $(seq 1 10); do curl -s -o /dev/null -w "%{http_code}\n" http://erfycuc5hhdtajac.fz77.alb.azure.com/; done
+for i in $(seq 1 10); do
+  out=$(curl -s -w "|%{http_code}" --max-time 5 http://erfycuc5hhdtajac.fz77.alb.azure.com/)
+  pod="${out%|*}"
+  code="${out##*|}"
+  printf "  req %2d  HTTP %s  served by  %s\n" "$i" "$code" "${pod//$'\n'/}"
+done
 ```
 
-> *"Ten 200s in a row. Customers never saw a single 5xx."*
+You'll see different pod names rotate through — proof that AGC is fanning out to *every* pod, including the ones that came up 30 seconds ago. Every request returns 200.
+
+**Then: the real distribution table.** Run the load test — it sends 200 requests in parallel and prints a per-pod hit count:
+
+```bash
+bash scripts/06-load-test.sh           # ~10s; prints HITS-per-POD table
+```
+
+Sample output (after the spike, with 6 shop pods running):
+```
+  HITS    POD
+  ----    ---
+  35      shop-v1-...-22kxw    ← brand-new pod from the spike
+  34      shop-v1-...-mllzf    ← brand-new pod from the spike
+  34      shop-v1-...-h8jdz    ← brand-new pod from the spike
+  33      shop-v1-...-dpl77    ← brand-new pod from the spike
+  32      shop-v1-...-77zx2    ← original pod
+  32      shop-v1-...-9lnnl    ← original pod
+```
+
+> *"Two-hundred requests, six pods, **zero 5xx**. AGC discovered every pod that came up in the last minute and started sending real traffic to them immediately. The traffic spread is roughly even — that's because all six pods are healthy stock-nginx pods reporting the same load. The bigger story here is **time-to-traffic**: brand-new pods started serving customers within seconds of going Ready."*
+
+> 💡 **The 'calm-pod-wins' story is real for AI/ML workloads.** When backends emit ORCA load reports (Envoy's open standard), AGC routes new connections to the lowest-load pod first — so an over-loaded GPU inference pod stops getting hammered. That's the killer feature for uneven workloads; with stock nginx all pods report identical load so distribution looks round-robin.
+
+> 💡 **For an extra "wow":** in another pane run `kubectl top pods -l app=shop-v1` while the load test runs — you'll see CPU spread across all 6 pods, not just the original 2.
 
 ### ⏸  PAUSE #2b — Combined reveal
 
